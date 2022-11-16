@@ -7,11 +7,33 @@
     <link href="/assets/bootstrap-5.2.2-dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<h1>Hello, world!</h1>
+<div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <img class="me-3" src="https://th-luebeck.de/typo3temp/assets/_processed_/c/4/csm_logo-thl_c82a29b8e4.png" alt="Logo"/>
+            <span class="fs-4">Simple header</span>
+        </a>
 
-<h2>Available actions</h2>
-<a href="/register.html">Register</a><br>
-<a href="/authenticate.html">Authenticate</a><br>
+        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark">Features</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark">Pricing</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark">FAQs</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark">About</a></li>
+        </ul>
+
+        <div class="col-md-3 text-end">
+            <button type="button" class="btn btn-outline-primary me-2">Login</button>
+            <button type="button" class="btn btn-primary">Sign-up</button>
+        </div>
+    </header>
+
+    <h1>Hello, world!</h1>
+
+    <h2>Available actions</h2>
+    <a href="/register.html">Register</a><br>
+    <a href="/authenticate.html">Authenticate</a><br>
+</div>
 
 <!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
         integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
