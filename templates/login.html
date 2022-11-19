@@ -1,0 +1,102 @@
+{% extends "layout_slim.html" %}
+
+{% block card_title %}Bei FIDO Demo anmelden{% endblock %}
+
+{% block layout_slim_content %}
+    <div class="mb-3">
+        Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
+        anmelden.
+        <br>
+        Klicken Sie auf den Button, um die Authentifizierung zu starten.
+    </div>
+
+
+    <div id="authentication-inprogress-div" class="mb-3" style="display: none;">
+        <div class="d-flex justify-content-center mb-1 text-secondary">
+            <div class="spinner-border" role="status"></div>
+        </div>
+        <div class="text-center text-secondary">Warte auf Genehmigung...</div>
+    </div>
+
+    <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;"
+         role="alert">
+        <div class="fs-1">⚠</div>
+        <div>Anmeldung gescheitert</div>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
+                class="btn btn-primary">Sicherheitsschlüssel verwenden
+        </button>
+    </div>
+{% endblock %}
+
+{% block additional_scripts %}
+    <script>
+        const authenticationInProgressDiv = document.getElementById("authentication-inprogress-div");
+        const authenticationFailedAlert = document.getElementById("authentication-failed-alert");
+        const authenticateButton = document.getElementById("authenticate-button");
+
+        function displayAuthenticationFailure() {
+            authenticationInProgressDiv.style.display = "none";
+            authenticationFailedAlert.style.display = "block";
+            authenticateButton.textContent = "Erneut versuchen";
+            authenticateButton.style.display = "block";
+        }
+
+        function displayAuthenticationInProgress() {
+            authenticationFailedAlert.style.display = "none";
+            authenticationInProgressDiv.style.display = "block";
+            authenticateButton.style.display = "none";
+        }
+    </script>
+
+    <script type="module">
+        import {
+            get,
+            parseRequestOptionsFromJSON,
+        } from '/assets/js/webauthn-json.browser-ponyfill.js';
+
+        async function onAuthenticateButtonClicked() {
+            displayAuthenticationInProgress();
+
+            let request = await fetch('/api/authenticate/begin', {
+                method: 'POST',
+            });
+            if (!request.ok) {
+                displayAuthenticationFailure();
+                let errorMessage = "Failed to retrieve authentication data from the server. URL: " + request.url +
+                    " Status: " + request.status + " Response Body: " + await request.text();
+                throw new Error(errorMessage);
+            }
+            let json = await request.json();
+            let options = parseRequestOptionsFromJSON(json);
+
+            let response = null;
+            try {
+                response = await get(options);
+            } catch (e) {
+                displayAuthenticationFailure();
+                throw Error("The browser could not process the cryptographic challenge. The most likely cause is that the " +
+                    "user didn't allow the request. Raw Error: " + e)
+            }
+
+            let result = await fetch('/api/authenticate/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(response),
+            });
+
+            if (!result.ok) {
+                displayAuthenticationFailure();
+                let errorMessage = "The server rejected the signed challenge. URL: " + request.url +
+                    " Status: " + request.status + " Response Body: " + await request.text();
+                throw new Error(errorMessage);
+            }
+
+            window.location = "/user.html"
+        }
+
+        window.onAuthenticateButtonClicked = onAuthenticateButtonClicked
+    </script>
+{% endblock %}
