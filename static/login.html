@@ -15,30 +15,36 @@
                 <img class="m-3" src="/assets/img/logo.svg" alt="Logo" style="width: 2cm"/>
             </a>
             <h3 class="text-center">Bei FIDO Demo anmelden</h3>
-            <div class="card pb-3">
+            <div class="card">
                 <div class="card-body">
-                    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
-                    anmelden.
-                    <br>
-                    Klicken Sie auf den Button, um die Authentifizierung zu starten.
-                </div>
-
-                <div id="authentication-inprogress-div" class="mb-3" style="display: none;">
-                    <div class="d-flex justify-content-center mb-1 text-secondary">
-                        <div class="spinner-border" role="status"></div>
+                    <div class="mb-3">
+                        Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
+                        anmelden.
+                        <br>
+                        Klicken Sie auf den Button, um die Authentifizierung zu starten.
                     </div>
-                    <div class="text-center text-secondary">Warte auf Genehmigung...</div>
-                </div>
 
-                <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;"
-                     role="alert">
-                    <div class="fs-1">⚠</div>
-                    <div>Anmeldung gescheitert</div>
-                </div>
 
-                <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
-                        class="btn btn-primary">Sicherheitsschlüssel verwenden
-                </button>
+                    <div id="authentication-inprogress-div" class="mb-3" style="display: none;">
+                        <div class="d-flex justify-content-center mb-1 text-secondary">
+                            <div class="spinner-border" role="status"></div>
+                        </div>
+                        <div class="text-center text-secondary">Warte auf Genehmigung...</div>
+                    </div>
+
+                    <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;"
+                         role="alert">
+                        <div class="fs-1">⚠</div>
+                        <div>Anmeldung gescheitert</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
+                                class="btn btn-primary">Sicherheitsschlüssel verwenden
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
