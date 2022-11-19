@@ -35,7 +35,7 @@ Navigate to https://localhost:5000 in a supported web browser.
 """
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity
 from fido2.server import Fido2Server
-from flask import Flask, session, request, redirect, abort, jsonify
+from flask import Flask, session, request, redirect, abort, jsonify, render_template
 
 import os
 import fido2.features
@@ -53,11 +53,6 @@ server = Fido2Server(rp)
 # Registered credentials are stored globally, in memory only. Single user
 # support, state is lost when the server terminates.
 credentials = []
-
-
-@app.route("/")
-def index():
-    return redirect("/index.html")
 
 
 @app.route("/api/register/begin", methods=["POST"])
@@ -117,6 +112,11 @@ def authenticate_complete():
     )
     print("ASSERTION OK")
     return jsonify({"status": "OK"})
+
+
+@app.route('/')
+def hello():
+    return render_template('index.html')
 
 
 def main():
