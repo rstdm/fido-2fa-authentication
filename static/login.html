@@ -8,6 +8,13 @@
 </head>
 <body>
 
+<script>
+    function displayAuthenticationFailure() {
+        document.getElementById("authentication-failed-alert").style.display = "block";
+        document.getElementById("authenticate-button").textContent = "Erneut versuchen";
+    }
+</script>
+
 <div class="row ms-3 me-3">
     <div class="mx-auto" style="max-width: 10cm;">
         <div class="row">
@@ -22,7 +29,12 @@
                     <br>
                     Klicken Sie auf den Button, um die Authentifizierung zu starten.
                 </div>
-                <button type="button" class="btn btn-primary">Sicherheitsschlüssel verwenden</button>
+                <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;" role="alert">
+                    <div class="fs-1">⚠</div>
+                    <div>Anmeldung gescheitert</div>
+                </div>
+
+                <button id="authenticate-button" type="button" onclick="displayAuthenticationFailure()" class="btn btn-primary">Sicherheitsschlüssel verwenden</button>
             </div>
         </div>
     </div>
