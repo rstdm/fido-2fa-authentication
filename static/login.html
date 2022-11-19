@@ -36,7 +36,7 @@
                     <div>Anmeldung gescheitert</div>
                 </div>
 
-                <button id="authenticate-button" type="button" onclick="displayAuthenticationFailure()"
+                <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
                         class="btn btn-primary">Sicherheitsschlüssel verwenden
                 </button>
             </div>
@@ -45,7 +45,6 @@
 </div>
 
 <script>
-
     const authenticationInProgressDiv = document.getElementById("authentication-inprogress-div");
     const authenticationFailedAlert = document.getElementById("authentication-failed-alert");
     const authenticateButton = document.getElementById("authenticate-button");
@@ -57,11 +56,60 @@
         authenticateButton.style.display = "block";
     }
 
-    function displayAuthenticationInProgress(){
+    function displayAuthenticationInProgress() {
         authenticationFailedAlert.style.display = "none";
         authenticationInProgressDiv.style.display = "block";
         authenticateButton.style.display = "none";
     }
+</script>
+
+<script type="module">
+    import {
+        get,
+        parseRequestOptionsFromJSON,
+    } from '/assets/js/webauthn-json.browser-ponyfill.js';
+
+    async function onAuthenticateButtonClicked() {
+        displayAuthenticationInProgress();
+
+        let request = await fetch('/api/authenticate/begin', {
+            method: 'POST',
+        });
+        if (!request.ok) {
+            displayAuthenticationFailure();
+            let errorMessage = "Failed to retrieve authentication data from the server. URL: " + request.url +
+                " Status: " + request.status + " Response Body: " + await request.text();
+            throw new Error(errorMessage);
+        }
+        let json = await request.json();
+        let options = parseRequestOptionsFromJSON(json);
+
+        let response = null;
+        try {
+            response = await get(options);
+        } catch (e) {
+            displayAuthenticationFailure();
+            throw Error("The browser could not process the cryptographic challenge. The most likely cause is that the " +
+                "user didn't allow the request. Raw Error: " + e)
+        }
+
+        let result = await fetch('/api/authenticate/complete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(response),
+        });
+
+        if (!result.ok) {
+            displayAuthenticationFailure();
+            let errorMessage = "The server rejected the signed challenge. URL: " + request.url +
+                " Status: " + request.status + " Response Body: " + await request.text();
+            throw new Error(errorMessage);
+        }
+
+        window.location = "/user.html"
+    }
+
+    window.onAuthenticateButtonClicked = onAuthenticateButtonClicked
 </script>
 
 <!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
