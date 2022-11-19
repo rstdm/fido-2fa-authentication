@@ -1,0 +1,3 @@
+Image       License     Source
+
+logo.svg    CC0         https://www.svgrepo.com/svg/209511/key-password
