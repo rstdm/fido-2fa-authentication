@@ -8,13 +8,6 @@
 </head>
 <body>
 
-<script>
-    function displayAuthenticationFailure() {
-        document.getElementById("authentication-failed-alert").style.display = "block";
-        document.getElementById("authenticate-button").textContent = "Erneut versuchen";
-    }
-</script>
-
 <div class="row ms-3 me-3">
     <div class="mx-auto" style="max-width: 10cm;">
         <div class="row">
@@ -29,16 +22,47 @@
                     <br>
                     Klicken Sie auf den Button, um die Authentifizierung zu starten.
                 </div>
-                <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;" role="alert">
+
+                <div id="authentication-inprogress-div" class="mb-3" style="display: none;">
+                    <div class="d-flex justify-content-center mb-1 text-secondary">
+                        <div class="spinner-border" role="status"></div>
+                    </div>
+                    <div class="text-center text-secondary">Warte auf Genehmigung...</div>
+                </div>
+
+                <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;"
+                     role="alert">
                     <div class="fs-1">⚠</div>
                     <div>Anmeldung gescheitert</div>
                 </div>
 
-                <button id="authenticate-button" type="button" onclick="displayAuthenticationFailure()" class="btn btn-primary">Sicherheitsschlüssel verwenden</button>
+                <button id="authenticate-button" type="button" onclick="displayAuthenticationFailure()"
+                        class="btn btn-primary">Sicherheitsschlüssel verwenden
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+
+    const authenticationInProgressDiv = document.getElementById("authentication-inprogress-div");
+    const authenticationFailedAlert = document.getElementById("authentication-failed-alert");
+    const authenticateButton = document.getElementById("authenticate-button");
+
+    function displayAuthenticationFailure() {
+        authenticationInProgressDiv.style.display = "none";
+        authenticationFailedAlert.style.display = "block";
+        authenticateButton.textContent = "Erneut versuchen";
+        authenticateButton.style.display = "block";
+    }
+
+    function displayAuthenticationInProgress(){
+        authenticationFailedAlert.style.display = "none";
+        authenticationInProgressDiv.style.display = "block";
+        authenticateButton.style.display = "none";
+    }
+</script>
 
 <!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
         integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
