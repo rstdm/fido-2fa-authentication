@@ -2,53 +2,36 @@
 
 {% block title %}Login{% endblock %}
 
-{% block card_title %}Bei FIDO Demo anmelden{% endblock %}
+{% block fido_layout_card_title %}Bei FIDO Demo anmelden{% endblock %}
 
-{% block layout_slim_content %}
-    <div class="mb-3">
-        Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
-        anmelden.
-        <br>
-        Klicken Sie auf den Button, um die Authentifizierung zu starten.
-    </div>
+{% block fido_layout_card_text %}
+    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
+    anmelden.
+    <br>
+    Klicken Sie auf den Button, um die Authentifizierung zu starten.
+{% endblock %}
 
-
-    <div id="authentication-inprogress-div" style="display: none;">
-        <div class="d-flex justify-content-center mb-1 text-secondary">
-            <div class="spinner-border" role="status"></div>
-        </div>
-        <div class="text-center text-secondary">Warte auf Genehmigung...</div>
-    </div>
-
-    <div id="authentication-failed-alert" class="alert alert-danger text-center" style="display: none;"
-         role="alert">
-        <div class="fs-1">⚠</div>
-        <div>Anmeldung gescheitert</div>
-    </div>
-
-    <div class="d-grid gap-2">
-        <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
-                class="btn btn-primary">Sicherheitsschlüssel verwenden
-        </button>
-    </div>
+{% block fido_layout_button %}
+    <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
+            class="btn btn-primary">Sicherheitsschlüssel verwenden
+    </button>
 {% endblock %}
 
 {% block additional_scripts %}
+    {{ super() }}
+
     <script>
-        const authenticationInProgressDiv = document.getElementById("authentication-inprogress-div");
-        const authenticationFailedAlert = document.getElementById("authentication-failed-alert");
         const authenticateButton = document.getElementById("authenticate-button");
 
-        function displayAuthenticationFailure() {
-            authenticationInProgressDiv.style.display = "none";
-            authenticationFailedAlert.style.display = "block";
-            authenticateButton.textContent = "Erneut versuchen";
+        function displayFailure(){
+            fidoLayout_displayFailure("Anmeldung gescheitert");
+
+            authenticateButton.innerText = "Erneut versuchen";
             authenticateButton.style.display = "block";
         }
 
-        function displayAuthenticationInProgress() {
-            authenticationFailedAlert.style.display = "none";
-            authenticationInProgressDiv.style.display = "block";
+        function displayInProgress(){
+            fidoLayout_displayInProgress();
             authenticateButton.style.display = "none";
         }
     </script>
@@ -60,13 +43,13 @@
         } from '/assets/js/webauthn-json.browser-ponyfill.js';
 
         async function onAuthenticateButtonClicked() {
-            displayAuthenticationInProgress();
+            displayInProgress();
 
             let request = await fetch('/api/authenticate/begin', {
                 method: 'POST',
             });
             if (!request.ok) {
-                displayAuthenticationFailure();
+                displayFailure();
                 let errorMessage = "Failed to retrieve authentication data from the server. URL: " + request.url +
                     " Status: " + request.status + " Response Body: " + await request.text();
                 throw new Error(errorMessage);
@@ -78,7 +61,7 @@
             try {
                 response = await get(options);
             } catch (e) {
-                displayAuthenticationFailure();
+                displayFailure();
                 throw Error("The browser could not process the cryptographic challenge. The most likely cause is that the " +
                     "user didn't allow the request. Raw Error: " + e)
             }
@@ -90,7 +73,7 @@
             });
 
             if (!result.ok) {
-                displayAuthenticationFailure();
+                displayFailure();
                 let errorMessage = "The server rejected the signed challenge. URL: " + request.url +
                     " Status: " + request.status + " Response Body: " + await request.text();
                 throw new Error(errorMessage);
