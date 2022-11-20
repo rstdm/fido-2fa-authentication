@@ -39,6 +39,7 @@ from flask import Flask, session, request, redirect, abort, jsonify, render_temp
 
 import os
 import fido2.features
+import session as session_util
 
 fido2.features.webauthn_json_mapping.enabled = True
 
@@ -111,12 +112,18 @@ def authenticate_complete():
         response,
     )
     print("ASSERTION OK")
+
+    session_util.login(session)
+
     return jsonify({"status": "OK"})
 
 
 @app.route('/')
-def hello():
-    return render_template('index.html')
+def index():
+    if session_util.is_logged_in(session):
+        return render_template('user.html')
+    else:
+        return render_template('index.html')
 
 
 @app.route('/login')
