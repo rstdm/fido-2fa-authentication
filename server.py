@@ -33,22 +33,22 @@ See the file README.adoc in this directory for details.
 
 Navigate to https://localhost:5000 in a supported web browser.
 """
-from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity
-from fido2.server import Fido2Server
-from flask import Flask, session, request, redirect, abort, jsonify, render_template
+from flask import Flask
 
 import os
 import fido2.features
 
 import api
-import session as session_util
+import frontend
 
 fido2.features.webauthn_json_mapping.enabled = True
 
 
 app = Flask(__name__, static_url_path="")
 app.secret_key = os.urandom(32)  # Used for session.
+
 app.register_blueprint(api.bp)
+app.register_blueprint(frontend.bp)
 
 
 @app.after_request
@@ -65,33 +65,6 @@ def apply_caching(response):
     # TODO flask sets the server header: Server: Werkzeug/2.2.2 Python/3.10.6 -> remove this header
 
     return response
-
-
-@app.route('/')
-def index():
-    if session_util.is_logged_in(session):
-        return render_template('index_logged_in.html', is_logged_in=True)
-    else:
-        return render_template('index.html', is_logged_in=False)
-
-
-@app.route('/register')
-def register():
-    return render_template('register.html')
-
-
-@app.route('/login')
-def login():
-    if session_util.is_logged_in(session):
-        return redirect("/")
-
-    return render_template('login.html')
-
-
-@app.route('/logout')
-def logout():
-    session_util.logout(session)
-    return redirect("/")
 
 
 def main():
