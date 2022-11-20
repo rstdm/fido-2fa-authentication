@@ -131,6 +131,9 @@ def index():
 
 @app.route('/login')
 def login():
+    if session_util.is_logged_in(session):
+        return redirect("/")
+
     return render_template('login.html')
 
 
