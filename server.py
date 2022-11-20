@@ -128,6 +128,10 @@ def index():
     else:
         return render_template('index.html', is_logged_in=False)
 
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
 
 @app.route('/login')
 def login():
