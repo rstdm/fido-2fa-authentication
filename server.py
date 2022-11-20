@@ -134,6 +134,12 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/logout')
+def logout():
+    session_util.logout(session)
+    return redirect("/")
+
+
 def main():
     print(__doc__)
     app.run(host="0.0.0.0", port=5000, ssl_context="adhoc", debug=True)
