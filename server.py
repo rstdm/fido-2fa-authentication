@@ -85,6 +85,9 @@ def register_complete():
 
     credentials.append(auth_data.credential_data)
     print("REGISTERED CREDENTIAL:", auth_data.credential_data)
+
+    session_util.login(session)
+
     return jsonify({"status": "OK"})
 
 
