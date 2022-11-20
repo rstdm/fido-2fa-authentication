@@ -124,7 +124,7 @@ def authenticate_complete():
 @app.route('/')
 def index():
     if session_util.is_logged_in(session):
-        return render_template('user.html', is_logged_in=True)
+        return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)
 
