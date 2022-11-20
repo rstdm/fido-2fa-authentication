@@ -1,57 +1,89 @@
-<html>
-<head>
-  <title>Fido 2.0 webauthn demo</title>
+{% extends "fido_layout.html" %}
 
-  <script type="module">
-    import {
-        create,
-        parseCreationOptionsFromJSON,
-    } from '/assets/js/webauthn-json.browser-ponyfill.js';
+{% block title %}Registrieren{% endblock %}
 
-    async function start() {
-      let request = await fetch('/api/register/begin', {
-        method: 'POST',
-      });
-      let json = await request.json();
-      let options = parseCreationOptionsFromJSON(json);
-      document.getElementById('initial').style.display = 'none';
-      document.getElementById('started').style.display = 'block';
+{% block fido_layout_card_title %}Bei FIDO Demo registrieren{% endblock %}
 
-      let response = await create(options);
-      let result = await fetch('/api/register/complete', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-	body: JSON.stringify(response),
-      });
+{% block fido_layout_card_text %}
+    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
+    registrieren.
+    <br>
+    Klicken Sie auf den Button, um die Authentifizierung zu starten.
+{% endblock %}
 
-      let stat = result.ok ? 'successful' : 'unsuccessful';
-      alert('Registration ' + stat + ' More details in server log...');
-      window.location = '/';
-    }
+{% block fido_layout_button %}
+    <button id="authenticate-button" type="button" onclick="onAuthenticateButtonClicked()"
+            class="btn btn-primary">Sicherheitsschlüssel verwenden
+    </button>
+{% endblock %}
 
-    window.start = start;
-  </script>
+{% block additional_scripts %}
+    {{ super() }}
 
-  <style>
-    body { font-family: sans-serif; line-height: 1.5em; padding: 2em 10em; }
-    h1, h2 { color: #325F74; }
-    a { color: #0080ac; font-weight: bold; text-decoration: none;}
-    a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-  <h1>WebAuthn demo using python-fido2</h1>
-  <p>This demo requires a browser supporting the WebAuthn API!</p>
-  <hr>
+    <script>
+        const authenticateButton = document.getElementById("authenticate-button");
 
-  <h2>Register a credential</h2>
-  <div id="initial">
-    <button onclick="start();">Click here to start</button>
-  </div>
-  <div id="started", style="display: none;">
-    <p>Touch your authenticator device now...</p>
-    <a href="/">Cancel</a>
-  </div>
+        function displayFailure() {
+            fidoLayout_displayFailure("Registrierung gescheitert");
 
-</body>
-</html>
+            authenticateButton.innerText = "Erneut versuchen";
+            authenticateButton.style.display = "block";
+        }
+
+        function displayInProgress() {
+            fidoLayout_displayInProgress();
+            authenticateButton.style.display = "none";
+        }
+    </script>
+
+    <script type="module">
+        import {
+            create,
+            parseCreationOptionsFromJSON,
+        } from '/assets/js/webauthn-json.browser-ponyfill.js';
+
+        async function onAuthenticateButtonClicked() {
+            displayInProgress();
+
+            let request = await fetch('/api/register/begin', {
+                method: 'POST',
+            });
+            if (!request.ok) {
+                displayFailure();
+                let errorMessage = "Failed to retrieve registration data from the server. URL: " + request.url +
+                    " Status: " + request.status + " Response Body: " + await request.text();
+                throw new Error(errorMessage);
+            }
+
+            let json = await request.json();
+            let options = parseCreationOptionsFromJSON(json);
+
+            let response = null;
+            try {
+                response = await create(options);
+            } catch (e) {
+                displayFailure();
+                throw Error("The browser could not process the cryptographic challenge. The most likely cause is that the " +
+                    "user didn't allow the request. Raw Error: " + e)
+            }
+
+            let result = await fetch('/api/register/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(response),
+            });
+
+            if (!result.ok) {
+                displayFailure();
+                let errorMessage = "The server rejected the signed challenge. URL: " + request.url +
+                    " Status: " + request.status + " Response Body: " + await request.text();
+                throw new Error(errorMessage);
+            }
+
+            window.location = "/"
+        }
+
+        window.onAuthenticateButtonClicked = onAuthenticateButtonClicked;
+    </script>
+
+{% endblock %}
