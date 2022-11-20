@@ -121,12 +121,29 @@ def authenticate_complete():
     return jsonify({"status": "OK"})
 
 
+@app.after_request
+def apply_caching(response):
+    # add security headers, see https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-site"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    # Strict-Transport-Security can be enabled as soon as this website has a valid certificate
+
+    # TODO flask sets the server header: Server: Werkzeug/2.2.2 Python/3.10.6 -> remove this header
+
+    return response
+
+
 @app.route('/')
 def index():
     if session_util.is_logged_in(session):
         return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)
+
 
 @app.route('/register')
 def register():
