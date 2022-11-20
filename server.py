@@ -39,6 +39,8 @@ from flask import Flask, session, request, redirect, abort, jsonify, render_temp
 
 import os
 import fido2.features
+
+import api
 import session as session_util
 
 fido2.features.webauthn_json_mapping.enabled = True
@@ -46,79 +48,7 @@ fido2.features.webauthn_json_mapping.enabled = True
 
 app = Flask(__name__, static_url_path="")
 app.secret_key = os.urandom(32)  # Used for session.
-
-rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
-server = Fido2Server(rp)
-
-
-# Registered credentials are stored globally, in memory only. Single user
-# support, state is lost when the server terminates.
-credentials = []
-
-
-@app.route("/api/register/begin", methods=["POST"])
-def register_begin():
-    options, state = server.register_begin(
-        PublicKeyCredentialUserEntity(
-            id=b"user_id",
-            name="a_user",
-            display_name="A. User",
-        ),
-        credentials,
-        user_verification="discouraged",
-        authenticator_attachment="cross-platform",
-    )
-
-    session["state"] = state
-    print("\n\n\n\n")
-    print(options)
-    print("\n\n\n\n")
-
-    return jsonify(dict(options))
-
-
-@app.route("/api/register/complete", methods=["POST"])
-def register_complete():
-    response = request.json
-    print("RegistrationResponse:", response)
-    auth_data = server.register_complete(session["state"], response)
-
-    credentials.append(auth_data.credential_data)
-    print("REGISTERED CREDENTIAL:", auth_data.credential_data)
-
-    session_util.login(session)
-
-    return jsonify({"status": "OK"})
-
-
-@app.route("/api/authenticate/begin", methods=["POST"])
-def authenticate_begin():
-    if not credentials:
-        abort(404)
-
-    options, state = server.authenticate_begin(credentials)
-    session["state"] = state
-
-    return jsonify(dict(options))
-
-
-@app.route("/api/authenticate/complete", methods=["POST"])
-def authenticate_complete():
-    if not credentials:
-        abort(404)
-
-    response = request.json
-    print("AuthenticationResponse:", response)
-    server.authenticate_complete(
-        session.pop("state"),
-        credentials,
-        response,
-    )
-    print("ASSERTION OK")
-
-    session_util.login(session)
-
-    return jsonify({"status": "OK"})
+app.register_blueprint(api.bp)
 
 
 @app.after_request
