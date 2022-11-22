@@ -65,7 +65,6 @@ def apply_caching(response):
                                                   "connect-src 'self'; " \
                                                   "img-src 'self'; " \
                                                   "style-src 'self'; " \
-                                                  "frame-ancestors 'self'; " \
                                                   "form-action 'self'; " \
                                                   "upgrade-insecure-requests; " \
                                                   "frame-ancestors 'none'; " \
