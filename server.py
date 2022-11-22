@@ -60,6 +60,16 @@ def apply_caching(response):
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Resource-Policy"] = "same-site"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; " \
+                                                  "script-src 'self'; " \
+                                                  "connect-src 'self'; " \
+                                                  "img-src 'self'; " \
+                                                  "style-src 'self'; " \
+                                                  "frame-ancestors 'self'; " \
+                                                  "form-action 'self'; " \
+                                                  "upgrade-insecure-requests; " \
+                                                  "frame-ancestors 'none'; " \
+                                                  "base-uri 'self';"
     # Strict-Transport-Security can be enabled as soon as this website has a valid certificate
 
     # TODO flask sets the server header: Server: Werkzeug/2.2.2 Python/3.10.6 -> remove this header
