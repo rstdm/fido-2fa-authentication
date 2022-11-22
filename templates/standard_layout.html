@@ -18,7 +18,9 @@
 
             <div class="col-md-3 text-end">
                 {% if is_logged_in %}
-                    <a class="btn btn-outline-primary" href="/logout">Abmelden</a>
+                    <form action="/logout" method="post">
+                        <button class="btn btn-outline-primary" type="submit">Abmelden</button>
+                    </form>
                 {% else %}
                     <a class="btn btn-outline-primary me-2" href="/login">Anmelden</a>
                     <a class="btn btn-primary" href="/register">Registrieren</a>
