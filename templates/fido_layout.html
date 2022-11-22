@@ -36,23 +36,3 @@
     </div>
 
 {% endblock %}
-
-{% block additional_scripts %}
-    <script>
-        const fidoLayoutInProgressDiv = document.getElementById("fido-layout-inprogress-div");
-        const fidoLayoutFailedAlert = document.getElementById("fido-layout-failed-alert");
-        const fidoLayoutFailedAlertMessage = document.getElementById("fido-layout-failed-alert-message");
-
-        function fidoLayout_displayFailure(message) {
-            fidoLayoutFailedAlertMessage.innerText = message;
-            fidoLayoutFailedAlert.style.display = "block";
-
-            fidoLayoutInProgressDiv.style.display = "none";
-        }
-
-        function fidoLayout_displayInProgress() {
-            fidoLayoutFailedAlert.style.display = "none";
-            fidoLayoutInProgressDiv.style.display = "block";
-        }
-    </script>
-{% endblock %}
