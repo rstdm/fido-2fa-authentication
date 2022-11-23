@@ -7,7 +7,11 @@ bp = Blueprint('frontend', __name__)
 
 @bp.route('/')
 def index():
-    if session_util.is_logged_in(session):
+
+    if not session_util.is_id_in(session):
+        session["id"] = session_util.create_session_id()
+
+    if session_util.is_session_logged_in(session):
         return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)

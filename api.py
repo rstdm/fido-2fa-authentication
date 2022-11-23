@@ -12,6 +12,8 @@ server = Fido2Server(rp)
 # support, state is lost when the server terminates.
 credentials = []
 
+
+
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
@@ -31,6 +33,7 @@ def register_begin():
     session["state"] = state
     print("\n\n\n\n")
     print(options)
+    print (session)
     print("\n\n\n\n")
 
     return jsonify(dict(options))

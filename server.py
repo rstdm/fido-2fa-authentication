@@ -51,6 +51,10 @@ app.register_blueprint(api.bp)
 app.register_blueprint(frontend.bp)
 
 
+
+
+
+
 @app.after_request
 def apply_caching(response):
     # add security headers, see https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html
