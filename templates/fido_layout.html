@@ -1,0 +1,38 @@
+{% extends "basic_html.html" %}
+
+{% block basic_html_content %}
+    <div class="row ms-3 me-3">
+        <div class="mx-auto fido-layout">
+            <div class="row">
+                <a class="mx-auto w-auto" href="/">
+                    <img class="m-3 fido-layout-icon" src="/assets/img/logo.svg" alt="Logo"/>
+                </a>
+                <h3 class="text-center">{% block fido_layout_card_title %}{% endblock %}</h3>
+                <div class="card pb-3">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {% block fido_layout_card_text %}{% endblock %}
+                        </div>
+
+                        <div id="fido-layout-inprogress-div" class="d-none">
+                            <div class="d-flex justify-content-center mb-1 text-secondary">
+                                <div class="spinner-border" role="status"></div>
+                            </div>
+                            <div class="text-center text-secondary">Warte auf Genehmigung...</div>
+                        </div>
+
+                        <div id="fido-layout-failed-alert" class="alert alert-danger text-center d-none" role="alert">
+                            <div class="fs-1">⚠</div>
+                            <div id="fido-layout-failed-alert-message"></div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {% block fido_layout_button %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

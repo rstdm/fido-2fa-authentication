@@ -1,0 +1,19 @@
+{% extends "standard_layout.html" %}
+
+{% block title %}Startseite{% endblock %}
+
+{% block standard_layout_content %}
+    <div class="px-4 py-5 my-5 text-center">
+        <img class="d-block mx-auto mb-4" src="/assets/img/logo.svg" alt="" width="72" height="57">
+        <h1 class="display-5 fw-bold">Willkommen bei FIDO Demo</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Passwortdiebstahl ist eine der größten Bedrohungen für digitale Identitäten, weswegen
+                viele Dienste ihre Accounts durch Zwei-Faktor-Authentisierung (2FA) schützen. FIDO ist eine 2FA-Methode,
+                die Ihre Accounts mit maximaler Sicherheit schützt, ohne dabei umständlich zu sein.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a class="btn btn-outline-primary btn-lg px-4" href="/login">Anmelden</a>
+                <a class="btn btn-primary btn-lg px-4 gap-3" href="/register">Registrieren</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

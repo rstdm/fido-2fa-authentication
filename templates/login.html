@@ -1,0 +1,20 @@
+{% extends "fido_layout.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block fido_layout_card_title %}Bei FIDO Demo anmelden{% endblock %}
+
+{% block fido_layout_card_text %}
+    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
+    anmelden.
+    <br>
+    Klicken Sie auf den Button, um die Authentifizierung zu starten.
+{% endblock %}
+
+{% block fido_layout_button %}
+    <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel verwenden</button>
+{% endblock %}
+
+{% block additional_scripts %}
+    <script src="/assets/js/login.js" type="module"></script>
+{% endblock %}
