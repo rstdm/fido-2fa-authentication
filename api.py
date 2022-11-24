@@ -19,6 +19,9 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 @bp.route("/register/begin", methods=["POST"])
 def register_begin():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
     options, state = server.register_begin(
         PublicKeyCredentialUserEntity(
             id=b"user_id",
@@ -41,6 +44,9 @@ def register_begin():
 
 @bp.route("/register/complete", methods=["POST"])
 def register_complete():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
     response = request.json
     print("RegistrationResponse:", response)
     auth_data = server.register_complete(session["state"], response)
@@ -55,6 +61,9 @@ def register_complete():
 
 @bp.route("/authenticate/begin", methods=["POST"])
 def authenticate_begin():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
     if not credentials:
         abort(404)
 
@@ -66,6 +75,9 @@ def authenticate_begin():
 
 @bp.route("/authenticate/complete", methods=["POST"])
 def authenticate_complete():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
     if not credentials:
         abort(404)
 

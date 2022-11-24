@@ -8,10 +8,10 @@ bp = Blueprint('frontend', __name__)
 @bp.route('/')
 def index():
 
-    if not session_util.is_id_in(session):
-        session["id"] = session_util.create_session_id()
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
 
-    if session_util.is_session_logged_in(session):
+    if session_util.isSessionLoggedIn(session):
         return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)
@@ -19,18 +19,26 @@ def index():
 
 @bp.route('/register')
 def register():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
     return render_template('register.html')
 
 
 @bp.route('/login')
 def login():
-    if session_util.is_logged_in(session):
-        return redirect("/")
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
 
+    if session_util.isSessionLoggedIn(session):
+        return redirect("/")
     return render_template('login.html')
 
 
 @bp.route('/logout', methods=["POST"])
 def logout():
-    session_util.logout(session)
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
+    if session_util.isSessionValid(session):
+        session_util.logout(session)
     return redirect("/")
