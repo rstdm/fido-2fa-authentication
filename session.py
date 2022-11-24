@@ -5,11 +5,8 @@ from cachetools import TTLCache
 
 from flask import session as flask_session
 
-SESSION_KEY_LOGGED_IN = "loggedIn"
-sessions = []
 SESSION_KEY = "ID"
-
-newSession = TTLCache(maxsize=500, ttl=3)
+newSession = TTLCache(maxsize=500, ttl=60)
 sessionIDLength = 64
 
 
@@ -21,11 +18,10 @@ def randString(string_length=10):
     return random[0:string_length]
 
 
-
 class ServerSession:
-
     id = None
     logged_in = False
+    state = None
 
     def __init__(self, id):
         self.id = id
@@ -34,10 +30,10 @@ class ServerSession:
         return self.id == other.id
 
     def __repr__(self):
-        return f"id: {self.id}, logged_in: {self.logged_in}"
+        return f"id: {self.id}, logged_in: {self.logged_in}, state: {self.state}"
 
 def createSessionId():
-    server_session = ServerSession(sessionIDLength)
+    server_session = ServerSession(randString(sessionIDLength))
     newSession[server_session.id] = server_session
     return server_session.id
 def isSessionValid (userSession: flask_session):
@@ -71,3 +67,11 @@ def isSessionLoggedIn(userSession: flask_session):
     return serverSession.logged_in
 
 
+def setSessionState(userSession: flask_session, state):
+    serverSession = getServerSession(userSession)
+    if serverSession is not None:
+        serverSession.state = state
+        newSession[userSession[SESSION_KEY]] = serverSession
+        return True
+
+    return False

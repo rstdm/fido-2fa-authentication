@@ -33,10 +33,11 @@ def register_begin():
         authenticator_attachment="cross-platform",
     )
 
-    session["state"] = state
+    #session["state"] = state
+    session_util.setSessionState(session, state)
     print("\n\n\n\n")
     print(options)
-    print (session)
+    print (f"userSession: {session}")
     print("\n\n\n\n")
 
     return jsonify(dict(options))
@@ -49,7 +50,7 @@ def register_complete():
 
     response = request.json
     print("RegistrationResponse:", response)
-    auth_data = server.register_complete(session["state"], response)
+    auth_data = server.register_complete(session_util.getServerSession(session).state, response)
 
     credentials.append(auth_data.credential_data)
     print("REGISTERED CREDENTIAL:", auth_data.credential_data)
@@ -68,7 +69,7 @@ def authenticate_begin():
         abort(404)
 
     options, state = server.authenticate_begin(credentials)
-    session["state"] = state
+    session_util.setSessionState(session, state)
 
     return jsonify(dict(options))
 
@@ -84,7 +85,7 @@ def authenticate_complete():
     response = request.json
     print("AuthenticationResponse:", response)
     server.authenticate_complete(
-        session.pop("state"),
+        session_util.getServerSession(session).state,
         credentials,
         response,
     )
