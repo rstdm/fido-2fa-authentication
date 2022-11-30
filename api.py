@@ -22,13 +22,11 @@ def register_begin():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
+    user = {"id": b"user_id", "name": "A. User"}
+
     options, state = server.register_begin(
-        PublicKeyCredentialUserEntity(
-            id=b"user_id",
-            name="a_user",
-            display_name="A. User",
-        ),
-        credentials,
+        user,
+        resident_key_requirement="required",
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
     )
