@@ -1,12 +1,14 @@
-import os
-import string
+import shelved_cache
 import uuid
-from cachetools import TTLCache
 
+from cachetools import TTLCache
 from flask import session as flask_session
 
+
+
 SESSION_KEY = "ID"
-newSession = TTLCache(maxsize=500, ttl=60)
+filename = "persistentsession"
+newSession = shelved_cache.PersistentCache( TTLCache, filename, 500, 60)
 sessionIDLength = 64
 
 
