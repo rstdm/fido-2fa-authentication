@@ -25,7 +25,11 @@ def register_begin():
     user = {"id": b"user_id", "name": "A. User"}
 
     options, state = server.register_begin(
-        user,
+        PublicKeyCredentialUserEntity(
+            id=b"user_id",
+            name="a_user",
+            display_name="A. User",
+        ),
         resident_key_requirement="required",
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
