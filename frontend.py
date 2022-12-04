@@ -30,3 +30,7 @@ def login():
 def logout():
     session_util.logout(session)
     return redirect("/")
+
+@bp.route('/admin')
+def admin_area():
+    return render_template('admin-area.html')

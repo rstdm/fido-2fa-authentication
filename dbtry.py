@@ -11,8 +11,9 @@ def main():
         print("    Print User: 2\n")
         print("    Remove User: 3\n")
         print("    Update User FIDO: 4\n")
+        print("    List all User: 5\n")
 
-        print("    Terminate program: 5\n")
+        print("    Terminate program: 6\n")
 
         choice = int(input("    Choose: "))
 
@@ -24,6 +25,8 @@ def main():
             removeUser()
         elif choice == 4:
             fidoUpdate()
+        elif choice == 5:
+            listAllUser()
         elif choice > 5:
             run = 0
 
@@ -61,6 +64,11 @@ def removeUser():
     lastname = input("    Lastname: ")
 
     removeFromDB(firstname, lastname)
+
+def listAllUser():
+    print("\n########## listAllUser ##############\n")
+
+    listAllUserDB()
 
 def insertIntoDB(firstname, lastname, username, password):
     print("\n########## insertIntoDB ##############\n")
@@ -114,6 +122,15 @@ def removeFromDB(firstname, lastname):
                      user_query.lastname == lastname)
 
     print(f" Number of Items after removal: {len(db)}")
+
+def listAllUserDB():
+    print("\n########## listAllUserDB ##############\n")
+
+    db.all()
+    
+    for item in db:
+        print(item)
+
 
 if __name__ == "__main__":
     main()
