@@ -1,15 +1,79 @@
+import shelved_cache
+import uuid
+
+from cachetools import TTLCache
 from flask import session as flask_session
 
-SESSION_KEY_LOGGED_IN = "loggedIn"
 
 
-def login(session: flask_session):
-    session[SESSION_KEY_LOGGED_IN] = True
+SESSION_KEY = "ID"
+filename = "persistentsession"
+newSession = shelved_cache.PersistentCache( TTLCache, filename, 500, 60)
+sessionIDLength = 64
 
 
-def logout(session: flask_session):
-    del session[SESSION_KEY_LOGGED_IN]
+
+def randString(string_length=10):
+    random = str(uuid.uuid4())
+    random = random.upper()
+    random = random.replace("-","")
+    return random[0:string_length]
 
 
-def is_logged_in(session: flask_session):
-    return session.get(SESSION_KEY_LOGGED_IN) is True
+class ServerSession:
+    id = None
+    logged_in = False
+    state = None
+
+    def __init__(self, id):
+        self.id = id
+
+    def __cmp__(self, other):
+        return self.id == other.id
+
+    def __repr__(self):
+        return f"id: {self.id}, logged_in: {self.logged_in}, state: {self.state}"
+
+def createSessionId():
+    server_session = ServerSession(randString(sessionIDLength))
+    newSession[server_session.id] = server_session
+    return server_session.id
+def isSessionValid (userSession: flask_session):
+    if SESSION_KEY in userSession:
+        return userSession[SESSION_KEY] in newSession.keys()
+    else:
+        return False
+
+
+
+def getServerSession (userSession: flask_session):
+    if isSessionValid(userSession):
+        return newSession[userSession[SESSION_KEY]]
+    else:
+        return None
+
+
+def login(userSession: flask_session):
+    serverSession = getServerSession(userSession)
+    serverSession.logged_in = True
+    newSession[userSession[SESSION_KEY]] = serverSession
+
+
+def logout(userSession: flask_session):
+    serverSession = getServerSession(userSession)
+    serverSession.logged_in = False
+    newSession[serverSession.id] = serverSession
+
+def isSessionLoggedIn(userSession: flask_session):
+    serverSession = getServerSession(userSession)
+    return serverSession.logged_in
+
+
+def setSessionState(userSession: flask_session, state):
+    serverSession = getServerSession(userSession)
+    if serverSession is not None:
+        serverSession.state = state
+        newSession[userSession[SESSION_KEY]] = serverSession
+        return True
+
+    return False
