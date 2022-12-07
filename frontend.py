@@ -42,3 +42,8 @@ def logout():
     if session_util.isSessionValid(session):
         session_util.logout(session)
     return redirect("/")
+
+
+@bp.route('/admin')
+def admin_area():
+    return render_template('admin-area.html')
