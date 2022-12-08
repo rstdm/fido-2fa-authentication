@@ -4,6 +4,7 @@ import {
     parseCreationOptionsFromJSON,
 } from '/assets/js/webauthn-json.browser-ponyfill.js';
 
+const buttonDiv = document.getElementById("button-div")
 const authenticateButton = document.getElementById("authenticate-button");
 
 authenticateButton.onclick = onAuthenticateButtonClicked;
@@ -12,12 +13,12 @@ function displayFailure() {
     fidoLayout.displayFailure("Einrichten von FIDO gescheitert");
 
     authenticateButton.innerText = "Erneut versuchen";
-    authenticateButton.style.display = "block";
+    buttonDiv.style.display = "block";
 }
 
 function displayInProgress() {
     fidoLayout.displayInProgress();
-    authenticateButton.style.display = "none";
+    buttonDiv.style.display = "none";
 }
 
 async function onAuthenticateButtonClicked() {
