@@ -9,7 +9,7 @@ const authenticateButton = document.getElementById("authenticate-button");
 authenticateButton.onclick = onAuthenticateButtonClicked;
 
 function displayFailure() {
-    fidoLayout.displayFailure("Registrierung gescheitert");
+    fidoLayout.displayFailure("Einrichten von FIDO gescheitert");
 
     authenticateButton.innerText = "Erneut versuchen";
     authenticateButton.style.display = "block";

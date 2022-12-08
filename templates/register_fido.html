@@ -5,16 +5,20 @@
 {% block slim_layout_card_title %}FIDO aktivieren{% endblock %}
 
 {% block fido_layout_card_text %}
-    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
-    registrieren.
+    FIDO ist eine bequeme Möglichkeit, um Ihren Account vor Hackerangriffen zu schützen.
     <br>
-    Klicken Sie auf den Button, um die Authentifizierung zu starten.
+    Wenn Sie im Besitz eines FIDO-Sicherheitsschlüssels sind, empfehlen wir Ihnen dringend, diesen jetzt einzurichten.
 {% endblock %}
 
 {% block fido_layout_button %}
-    <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel verwenden
-    </button>
+    <div class="d-grid gap-2 mb-3">
+        <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel einrichten</button>
+    </div>
+    <div class="row">
+        <a class="text-secondary text-decoration-none mx-auto w-auto" href="/">Überspringen</a>
+    </div>
 {% endblock %}
+
 
 {% block additional_scripts %}
     <script type="module" src="/assets/js/register.js"></script>
