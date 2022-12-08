@@ -24,6 +24,13 @@ def register():
     return render_template('register.html')
 
 
+@bp.route('/register-fido')
+def register_fido():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+    return render_template('register_fido.html')
+
+
 @bp.route('/login')
 def login():
     if not session_util.isSessionValid(session):
