@@ -4,10 +4,39 @@ import {
     parseCreationOptionsFromJSON,
 } from '/assets/js/webauthn-json.browser-ponyfill.js';
 
-const buttonDiv = document.getElementById("button-div")
+const buttonDiv = document.getElementById("button-div");
+const textNoPlatformSupport = document.getElementById("text-no-platform-support");
+const textPlatformSupport = document.getElementById("text-platform-support");
 const authenticateButton = document.getElementById("authenticate-button");
 
+const radioDiv = document.getElementById("radio-div");
+const platformRadio = document.getElementById("platform-radio");
+const crossPlatformRadio = document.getElementById("cross-platform-radio");
+
 authenticateButton.onclick = onAuthenticateButtonClicked;
+
+checkPlatformSupport();
+
+async function checkPlatformSupport() {
+    let platformSupportsFido = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (platformSupportsFido) {
+        textNoPlatformSupport.classList.add("d-none");
+        textPlatformSupport.classList.remove("d-none");
+        radioDiv.classList.remove("d-none");
+
+        if (platformRadio.checked || crossPlatformRadio.checked) {
+            return
+        }
+
+        authenticateButton.disabled = true;
+        platformRadio.oninput = (e => {
+            authenticateButton.disabled = false;
+        })
+        crossPlatformRadio.oninput = (e => {
+            authenticateButton.disabled = false;
+        })
+    }
+}
 
 function displayFailure() {
     fidoLayout.displayFailure("Einrichten von FIDO gescheitert");
@@ -24,8 +53,16 @@ function displayInProgress() {
 async function onAuthenticateButtonClicked() {
     displayInProgress();
 
+    let platformSupportsFido = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    let useCrossPlatform = !platformSupportsFido || crossPlatformRadio.checked
+
     let request = await fetch('/api/register/begin', {
         method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'crossPlatform': useCrossPlatform})
     });
     if (!request.ok) {
         displayFailure();

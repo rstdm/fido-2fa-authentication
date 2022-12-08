@@ -7,13 +7,33 @@
 {% block fido_layout_card_text %}
     FIDO ist eine bequeme Möglichkeit, um Ihren Account vor Hackerangriffen zu schützen.
     <br>
-    Wenn Sie im Besitz eines FIDO-Sicherheitsschlüssels sind, empfehlen wir Ihnen dringend, diesen jetzt einzurichten.
+    <div id="text-no-platform-support">
+        Wenn Sie im Besitz eines FIDO-Sicherheitsschlüssels sind, empfehlen wir Ihnen dringend, diesen jetzt
+        einzurichten.
+    </div>
+    <div id="text-platform-support" class="d-none">
+        Ihr Gerät unterstützt FIDO, weswegen Sie sich direkt mit diesem Gerät authentifizieren können. Dies ist
+        komfortabel, aber sie können sich nicht von anderen Geräten aus anmelden. Ein externer Sicherheitstoken umgeht
+        dieses Problem.
+    </div>
 {% endblock %}
 
 {% block fido_layout_button %}
     <div id="button-div">
+        <div class="mb-3">Wie soll FIDO eingerichtet werden?</div>
+        <div class="d-flex mb-3 d-none" id="radio-div">
+            <div class="form-check form-check-inline me-auto">
+                <input class="form-check-input" type="radio" id="platform-radio" name="fido-platform">
+                <label class="form-check-label" for="platform-radio">Gerät</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="cross-platform-radio" name="fido-platform">
+                <label class="form-check-label" for="cross-platform-radio">externer Token</label>
+            </div>
+        </div>
         <div class="d-grid gap-2 mb-3">
-            <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel einrichten
+            <button id="authenticate-button" type="button" class="btn btn-primary">FIDO einrichten
             </button>
         </div>
         <div class="row">
