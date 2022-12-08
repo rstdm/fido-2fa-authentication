@@ -5,3 +5,14 @@
 .fido-layout-icon {
     width: 2cm;
 }
+
+.input-group-no-border-radius-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.input-group-no-border-radius-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: -1px;
+}
