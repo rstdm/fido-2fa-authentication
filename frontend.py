@@ -31,14 +31,14 @@ def register_fido():
     return render_template('register_fido.html')
 
 
-@bp.route('/login')
-def login():
+@bp.route('/login-fido')
+def login_fido():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
     if session_util.isSessionLoggedIn(session):
         return redirect("/")
-    return render_template('login.html')
+    return render_template('login_fido.html')
 
 
 @bp.route('/logout', methods=["POST"])
