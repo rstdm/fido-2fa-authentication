@@ -30,7 +30,6 @@ def register_begin():
             name="a_user",
             display_name="A. User",
         ),
-        resident_key_requirement="required",
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
     )

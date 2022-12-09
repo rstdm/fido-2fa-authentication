@@ -24,6 +24,13 @@ def register():
     return render_template('register.html')
 
 
+@bp.route('/register-fido')
+def register_fido():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+    return render_template('register_fido.html')
+
+
 @bp.route('/login')
 def login():
     if not session_util.isSessionValid(session):
@@ -34,6 +41,16 @@ def login():
     return render_template('login.html')
 
 
+@bp.route('/login-fido')
+def login_fido():
+    if not session_util.isSessionValid(session):
+        session[session_util.SESSION_KEY] = session_util.createSessionId()
+
+    if session_util.isSessionLoggedIn(session):
+        return redirect("/")
+    return render_template('login_fido.html')
+
+
 @bp.route('/logout', methods=["POST"])
 def logout():
     if not session_util.isSessionValid(session):
@@ -42,8 +59,3 @@ def logout():
     if session_util.isSessionValid(session):
         session_util.logout(session)
     return redirect("/")
-
-
-@bp.route('/admin')
-def admin_area():
-    return render_template('admin-area.html')

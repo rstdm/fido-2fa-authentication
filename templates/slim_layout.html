@@ -1,0 +1,20 @@
+{% extends "basic_html.html" %}
+
+{% block basic_html_content %}
+    <div class="row ms-3 me-3">
+        <div class="mx-auto slim-layout">
+            <div class="row">
+                <a class="mx-auto w-auto" href="/">
+                    <img class="m-3 fido-layout-icon" src="/assets/img/logo.svg" alt="Logo"/>
+                </a>
+                <h3 class="text-center mb-3">{% block slim_layout_card_title %}{% endblock %}</h3>
+                <div class="card pb-3">
+                    <div class="card-body">
+                        {% block slim_layout_card_body %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
