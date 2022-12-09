@@ -2,20 +2,44 @@
 
 {% block title %}Registrieren{% endblock %}
 
-{% block fido_layout_card_title %}Bei FIDO Demo registrieren{% endblock %}
+{% block slim_layout_card_title %}Bei FIDO Demo registrieren{% endblock %}
 
-{% block fido_layout_card_text %}
-    Aus Sicherheitsgründen können Sie sich bei FIDO Demo nur mit einem FIDO-Sicherheitsschlüssel
-    registrieren.
-    <br>
-    Klicken Sie auf den Button, um die Authentifizierung zu starten.
-{% endblock %}
+{% block slim_layout_card_body %}
+    <div class="mb-3">Bitte geben Sie ihre Daten ein. Der Nutzername ist frei wählbar und hilft Ihnen, Ihre
+        verschiedenen Accounts bei FIDO Demo zu unterscheiden.
+    </div>
 
-{% block fido_layout_button %}
-    <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel verwenden
-    </button>
-{% endblock %}
+    <!--TODO persist the user data somewhere. Don't forget the input validation. The username must be unique.-->
+    <form action="/register-fido" method="get">
+        <div class="input-group">
+            <div class="form-floating">
+                <input class="form-control input-group-no-border-radius-bottom" id="firstnameInput" name="firstname"
+                       maxlength="100" required
+                       placeholder="Vorname">
+                <label for="firstnameInput">Vorname</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control input-group-no-border-radius-bottom" id="lastnameInput" name="lastname"
+                       maxlength="100" required
+                       placeholder="Nachname">
+                <label for="lastnameInput">Nachname</label>
+            </div>
+        </div>
 
-{% block additional_scripts %}
-    <script type="module" src="/assets/js/register.js"></script>
+        <div class="form-floating">
+            <input class="form-control input-group-no-border-radius-top input-group-no-border-radius-bottom"
+                   id="usernameInput" name="username" maxlength="100" required placeholder="Nutzername">
+            <label for="usernameInput">Nutzername</label>
+        </div>
+
+        <div class="form-floating">
+            <input type="password" name="password" class="form-control input-group-no-border-radius-top"
+                   id="passwordInput" maxlength="100" required placeholder="Passwort">
+            <label for="passwordInput">Passwort</label>
+        </div>
+
+        <div class="d-grid gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Registrieren</button>
+        </div>
+    </form>
 {% endblock %}

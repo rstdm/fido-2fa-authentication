@@ -16,17 +16,23 @@
                 <li><a href="#" class="nav-link px-2 link-dark">About</a></li>
             </ul>-->
 
-            <div class="col-md-4 text-end">
+            <ul class="nav nav-pills">
                 {% if is_logged_in %}
-                    <form action="/logout" method="post">
-                        <button class="btn btn-outline-primary" type="submit">Abmelden</button>
-                    </form>
-                {% else %}
-                    <a class="btn btn-outline-danger" href="/admin">Admin-Bereich</a>
-                    <a class="btn btn-outline-primary me-2" href="/login">Anmelden</a>
-                    <a class="btn btn-primary" href="/register">Registrieren</a>
+                    <li class="nav-item">
+                        <form action="/logout" method="post">
+                            <button class="btn btn-outline-primary" type="submit">Abmelden</button>
+                        </form>
+
+                        {% else %}
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary me-2" href="/login">Anmelden</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary" href="/register">Registrieren</a>
+                    </li>
                 {% endif %}
-            </div>
+            </ul>
+
         </header>
 
         {% block standard_layout_content %}{% endblock %}

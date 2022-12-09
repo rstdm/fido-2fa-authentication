@@ -17,4 +17,48 @@
             </div>
         </div>
     </div>
+
+    <div class="my-5 text-center">
+        <h1 class="display-5 fw-bold">Übersicht über registrierte Nutzer</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Die nachfolgende Tabelle gibt eine Übersicht über die registrierten Nutzer und darüber,
+                ob sie FIDO nutzen. Eine reale Anwendung hätte dieses Feature natürlich nicht ...</p>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Nutzername</th>
+            <th>FIDO</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>admin</td>
+            <td>admin</td>
+            <td>admin</td>
+            <td>✓</td>
+        </tr>
+        <tr>
+            <td>Arne</td>
+            <td>Salveter</td>
+            <td>arne.salveter</td>
+            <td>✕</td>
+        </tr>
+        <tr>
+            <td>René</td>
+            <td>Maget</td>
+            <td>rene.maget</td>
+            <td>✓</td>
+        </tr>
+        <tr>
+            <td>Gordon</td>
+            <td>Flaegel</td>
+            <td>gordon.flaegel</td>
+            <td>✕</td>
+        </tr>
+        </tbody>
+    </table>
 {% endblock %}

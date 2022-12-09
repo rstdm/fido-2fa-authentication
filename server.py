@@ -64,10 +64,13 @@ def apply_caching(response):
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Resource-Policy"] = "same-site"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+    # we have to allow the "data" scheme for images because bootstrap uses some CSS rules that look like this:
+    # background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
     response.headers["Content-Security-Policy"] = "default-src 'none'; " \
                                                   "script-src 'self'; " \
                                                   "connect-src 'self'; " \
-                                                  "img-src 'self'; " \
+                                                  "img-src 'self' data:; " \
                                                   "style-src 'self'; " \
                                                   "form-action 'self'; " \
                                                   "upgrade-insecure-requests; " \

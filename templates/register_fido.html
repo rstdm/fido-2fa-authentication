@@ -1,0 +1,28 @@
+{% extends "fido_layout.html" %}
+
+{% block title %}Registrieren{% endblock %}
+
+{% block slim_layout_card_title %}FIDO aktivieren{% endblock %}
+
+{% block fido_layout_card_text %}
+    FIDO ist eine bequeme Möglichkeit, um Ihren Account vor Hackerangriffen zu schützen.
+    <br>
+    Wenn Sie im Besitz eines FIDO-Sicherheitsschlüssels sind, empfehlen wir Ihnen dringend, diesen jetzt einzurichten.
+{% endblock %}
+
+{% block fido_layout_button %}
+    <div id="button-div">
+        <div class="d-grid gap-2 mb-3">
+            <button id="authenticate-button" type="button" class="btn btn-primary">Sicherheitsschlüssel einrichten
+            </button>
+        </div>
+        <div class="row">
+            <a class="text-secondary text-decoration-none mx-auto w-auto" href="/">Überspringen</a>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block additional_scripts %}
+    <script type="module" src="/assets/js/register.js"></script>
+{% endblock %}
