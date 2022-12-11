@@ -7,7 +7,6 @@ bp = Blueprint('frontend', __name__)
 
 @bp.route('/')
 def index():
-
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 

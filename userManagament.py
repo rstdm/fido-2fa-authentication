@@ -1,6 +1,7 @@
 import shelved_cache
 import uuid
 from cachetools import LRUCache
+import hashlib, uuid
 
 
 userContainerName = 'userContainer.db'
@@ -17,23 +18,32 @@ def randString(string_length=10):
 
 class User:
     id = None
-    name  = None
+    userName  = None
     password = None
     passwordSalt = None
     fidoInfo = None
     sessionID = None
+    firstName = None
+    lastName = None
 
-
-    def __init__(self, id, name, password, fidoInfo):
+    def __init__(self, id, userName, password, passwordSalt, fidoInfo, sessionID, firstName, lastName):
         self.id = id
-        self.name = name
+        self.userName = userName
         self.password = password
-        self.passwordSalt = randString(16)
+        self.passwordSalt = passwordSalt
         self.fidoInfo = fidoInfo
-        self.sessionID = None
+        self.sessionID = sessionID
+        self.firstName = firstName
+        self.lastName = lastName
+
+    def __cmp__(self, other):
+        return self.id == other.id
 
     def __repr__(self):
-        return f"id: {self.id}, name: {self.name}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}"
+        return f"id: {self.id}, userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
+
+    def __str__(self):
+        return f"id: {self.id}, userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
 
     def __eq__(self, other):
         return self.id == other.id
@@ -41,11 +51,31 @@ class User:
     def __hash__(self):
         return hash(self.id)
 
-    def __cmp__(self, other):
-        return self.id == other.id
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
+def createUser(userName, password, fidoInfo, sessionID, firstName, lastName):
+    salt = uuid.uuid4().hex
+    hashed_password = hashlib.sha512(password + salt).hexdigest()
+    user = User(randString(), userName, hashed_password, salt, fidoInfo, sessionID, firstName, lastName)
+    userContainer[user.id] = user
+    return user
 
+
+def getUser(id):
+    return userContainer[id]
+
+def getUserBySessionID(sessionID):
+    for user in userContainer.values():
+        if user.sessionID == sessionID:
+            return user
+    return None
+
+
+def checkPassword(user, password):
+    hashed_password = hashlib.sha512(password + user.passwordSalt).hexdigest()
+    return hashed_password == user.password
 
 
 
