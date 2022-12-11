@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, session
+from flask import Blueprint, render_template, redirect, session, request
 
 import session as session_util
 
@@ -31,13 +31,26 @@ def register_fido():
     return render_template('register_fido.html')
 
 
-@bp.route('/login')
+@bp.route('/login', methods = ['GET','POST'])
 def login():
     if not session_util.isSessionValid(session):
+        # is the session valid? create a new session if not
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
     if session_util.isSessionLoggedIn(session):
-        return redirect("/")
+        # user is already logged in
+        return redirect("/index_logged_in.html")
+    else:
+        # user is not logged in, check credentials
+        if request.method == 'POST':
+            # check credentials
+            if request.form['username'] == 'admin' and request.form['password'] == 'admin':
+                # login successful
+                session_util.login(session)
+                return render_template("/index_logged_in.html")
+            else:
+                # login failed
+                return render_template('login.html', is_logged_in=False, login_failed=True)
     return render_template('login.html')
 
 
