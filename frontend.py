@@ -62,9 +62,13 @@ def register_fido():
 
 @bp.route('/login', methods = ['GET','POST'])
 def login():
+    sessionId = None
     if not session_util.isSessionValid(session):
         # is the session valid? create a new session if not
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
+        sessionId = session_util.createSessionId()
+        session[session_util.SESSION_KEY] = sessionId
+    else:
+        sessionId = session[session_util.SESSION_KEY]
 
     if session_util.isSessionLoggedIn(session):
         # user is already logged in
@@ -73,6 +77,18 @@ def login():
         # user is not logged in, check credentials
         if request.method == 'POST':
             # check credentials
+            username = request.form['username']
+            password = request.form['password']
+
+            user = userm.getUser(username)
+
+            if user is not None:
+                if userm.checkPassword(user, password):
+                    session_util.login(session)
+                    return render_template('/index_logged_in.html')
+                else:
+                    return render_template('login.html', error="Invalid credentials")
+
             if request.form['username'] == 'admin' and request.form['password'] == 'admin':
                 # login successful
                 session_util.login(session)

@@ -17,7 +17,6 @@ def randString(string_length=10):
 
 
 class User:
-    id = None
     userName  = None
     password = None
     passwordSalt = None
@@ -26,8 +25,7 @@ class User:
     firstName = None
     lastName = None
 
-    def __init__(self, id, userName, password, passwordSalt, fidoInfo, sessionID, firstName, lastName):
-        self.id = id
+    def __init__(self, userName, password, passwordSalt, fidoInfo, sessionID, firstName, lastName):
         self.userName = userName
         self.password = password
         self.passwordSalt = passwordSalt
@@ -37,19 +35,20 @@ class User:
         self.lastName = lastName
 
     def __cmp__(self, other):
-        return self.id == other.id
+        return self.userName == other.userName
 
     def __repr__(self):
-        return f"id: {self.id}, userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
+        return f"userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
 
     def __str__(self):
-        return f"id: {self.id}, userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
+        return f"userName: {self.userName}, password: {self.password}, passwordSalt: {self.passwordSalt}, fidoInfo: {self.fidoInfo}, sessionID: {self.sessionID}, firstName: {self.firstName}, lastName: {self.lastName}"
 
     def __eq__(self, other):
-        return self.id == other.id
+        return self.userName == other.userName
+
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self.userName)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -58,13 +57,13 @@ class User:
 def createUser(userName, password, fidoInfo, sessionID, firstName, lastName):
     salt = uuid.uuid4().hex
     hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
-    user = User(randString(), userName, hashed_password, salt, fidoInfo, sessionID, firstName, lastName)
-    userContainer[user.id] = user
+    user = User(userName, hashed_password, salt, fidoInfo, sessionID, firstName, lastName)
+    userContainer[user.userName] = user
     return user
 
 
-def getUser(id):
-    return userContainer[id]
+def getUser(userName):
+    return userContainer[userName]
 
 def getUserBySessionID(sessionID):
     for user in userContainer.values():
@@ -73,9 +72,11 @@ def getUserBySessionID(sessionID):
     return None
 
 
-def checkPassword(user, password):
-    hashed_password = hashlib.sha512(password + user.passwordSalt).hexdigest()
-    return hashed_password == user.password
+def checkPassword(user, given_password):
+    existing_password = user.password
+    salt = user.passwordSalt
+    hashed_password = hashlib.sha512(given_password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
+    return hashed_password == existing_password
 
 
 def  registerUser(user, sessionID) -> bool:
@@ -84,7 +85,7 @@ def  registerUser(user, sessionID) -> bool:
     for userInContainer in userContainer.values():
         if userInContainer == user:
             return False
-    userContainer[user.id] = user
+    userContainer[user.userName] = user
     return True
 
 
