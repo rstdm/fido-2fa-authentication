@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, session, request
 
 import session as session_util
+import userManagament as userm
 
 bp = Blueprint('frontend', __name__)
 
@@ -16,17 +17,46 @@ def index():
         return render_template('index.html', is_logged_in=False)
 
 
-@bp.route('/register')
+@bp.route('/register', methods=['POST', 'GET'])
 def register():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
-    return render_template('register.html')
+
+    if session_util.isSessionLoggedIn(session):
+        return redirect('/')
+
+    if request.method == 'POST':
+        # register user
+        # validate input
+        if len (request.form) != 4:
+            return render_template('register.html', error="Invalid input")
+        firstName = request.form['firstname']
+        lastName = request.form['lastname']
+        userName = request.form['username']
+        password = request.form['password']
+
+        serverSession = session_util.getServerSession(session)
+        if serverSession is None:
+            return redirect('/register')
+        newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
+        userm.registerUser(newUser, serverSession.id)
+        return redirect('/login')
 
 
-@bp.route('/register-fido')
+
+    else:
+        return render_template('register.html')
+
+
+
+@bp.route('/register-fido', methods=['POST', 'GET'])
 def register_fido():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
+
+    if session_util.isSessionLoggedIn(session):
+        return redirect('/')
+
     return render_template('register_fido.html')
 
 

@@ -2,9 +2,9 @@ import shelved_cache
 import uuid
 from cachetools import LRUCache
 import hashlib, uuid
+import session as session_util
 
-
-userContainerName = 'userContainer.db'
+userContainerName = 'userContainer'
 
 userContainer = shelved_cache.PersistentCache( LRUCache, userContainerName, 500)
 
@@ -57,7 +57,7 @@ class User:
 
 def createUser(userName, password, fidoInfo, sessionID, firstName, lastName):
     salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512(password + salt).hexdigest()
+    hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
     user = User(randString(), userName, hashed_password, salt, fidoInfo, sessionID, firstName, lastName)
     userContainer[user.id] = user
     return user
@@ -78,6 +78,14 @@ def checkPassword(user, password):
     return hashed_password == user.password
 
 
+def  registerUser(user, sessionID) -> bool:
+    user.sessionID = sessionID
+    # check if user already exists
+    for userInContainer in userContainer.values():
+        if userInContainer == user:
+            return False
+    userContainer[user.id] = user
+    return True
 
 
 
