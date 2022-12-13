@@ -59,6 +59,10 @@ def createUser(userName, password, fidoInfo, sessionID, firstName, lastName):
     salt = uuid.uuid4().hex
     hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
     user = User(randString(), userName, hashed_password, salt, fidoInfo, sessionID, firstName, lastName)
+    print(f"        sessionID: {sessionID}")
+    print(f"        hashed_password: {hashed_password}")
+    print(f"        salt: {salt}")
+    print(f"        fidoInfo: {fidoInfo}")
     userContainer[user.id] = user
     return user
 
@@ -76,6 +80,13 @@ def getUserBySessionID(sessionID):
 def checkPassword(user, password):
     hashed_password = hashlib.sha512(password + user.passwordSalt).hexdigest()
     return hashed_password == user.password
+
+def checkPassword2(password, passwordSalt, hashed_password) -> bool:
+    #print(f"        password: {password}")
+    #print(f"        passwordSalt: {passwordSalt}")
+    control_hashed_password = hashlib.sha512(password.encode('utf-8') + passwordSalt.encode('utf-8')).hexdigest()
+    #print(f"        hashed_password: {control_hashed_password}")
+    return control_hashed_password == hashed_password
 
 
 def  registerUser(user, sessionID) -> bool:

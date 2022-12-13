@@ -1,4 +1,5 @@
 from tinydb import TinyDB, Query
+import userManagament as userm
 
 db = TinyDB('db.json')
 
@@ -70,19 +71,21 @@ def listAllUser():
 
     listAllUserDB()
 
-def insertIntoDB(firstname, lastname, username, password):
+def insertIntoDB(user): #firstname, lastname, username, password, passwordSalt, sessionID):
     print("\n########## insertIntoDB ##############\n")
     db.insert(
-        {'nr': len(db) + 1,
-         'firstname': firstname,
-         'lastname': lastname,
-         'username': username,
-         'password': password,
+        {'id': user.id,
+         'firstname': user.firstName,
+         'lastname': user.lastName,
+         'username': user.userName,
+         'password': user.password,
+         'passwordSalt': user.passwordSalt,
+         'sessionID' : user.sessionID,
          'fido': 0
         }
     )
 
-def queryUserDB(username, password):
+def queryUserDB(username, password) -> bool:
     print("\n########## queryUserDB ##############\n")
 
     user_query = Query()
@@ -90,12 +93,23 @@ def queryUserDB(username, password):
     user = db.search(user_query.username == username)
 #    print(user)
 
-    print("    Requested User")
-    print(f"        User Firstname: {user[0]['firstname']}")
-    print(f"        User Lastname: {user[0]['lastname']}")
-    print(f"        User Username: {user[0]['username']}")
-    print(f"        User Passwort: {user[0]['password']}")
-    print(f"        User FidoActive: {user[0]['fido']}")
+    if userm.checkPassword2(password, user[0]['passwordSalt'], user[0]['password']):
+        print("    Password was correct following User Data")
+        print("    Requested User")
+        print(f"        User id: {user[0]['id']}")
+        print(f"        User Firstname: {user[0]['firstname']}")
+        print(f"        User Lastname: {user[0]['lastname']}")
+        print(f"        User Username: {user[0]['username']}")
+        print(f"        User Passwort: {user[0]['password']}")
+        print(f"        User Passwort Salt: {user[0]['passwordSalt']}")
+        print(f"        User sessionID: {user[0]['sessionID']}")
+        print(f"        User FidoActive: {user[0]['fido']}")
+        return True
+    else:
+        print("    Wrong Password")
+        return False
+
+    
 
 #    print(f" Number of Items: {len(db)}")
 
