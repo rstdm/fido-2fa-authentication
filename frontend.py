@@ -42,8 +42,11 @@ def register():
         newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
         userm.registerUser(newUser, serverSession.id)
 
-        db.insertIntoDB(newUser)
-        return redirect('/login')
+        if not db.userExists(userName):
+            db.insertIntoDB(newUser)
+            return redirect('/login')
+        else:
+            return redirect('/register')
 
 
 
@@ -86,7 +89,7 @@ def login():
             else:
                 print(f"Username: {userName}, Password: {password}")
                 if db.queryUserDB(userName,password):
-                    return render_template("/register_fido.html")
+                    return render_template("/register_fido.html", username=userName)
                 else:
                     return render_template("/login.html")
         else:

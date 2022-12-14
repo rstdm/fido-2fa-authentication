@@ -13,8 +13,9 @@ def main():
         print("    Remove User: 3\n")
         print("    Update User FIDO: 4\n")
         print("    List all User: 5\n")
+        print("    Check User Exists: 6\n")
 
-        print("    Terminate program: 6\n")
+        print("    Terminate program: 10\n")
 
         choice = int(input("    Choose: "))
 
@@ -28,7 +29,9 @@ def main():
             fidoUpdate()
         elif choice == 5:
             listAllUser()
-        elif choice > 5:
+        elif choice == 6:
+            checkIfUserExists()
+        elif choice > 10:
             run = 0
 
 
@@ -81,9 +84,28 @@ def insertIntoDB(user): #firstname, lastname, username, password, passwordSalt, 
          'password': user.password,
          'passwordSalt': user.passwordSalt,
          'sessionID' : user.sessionID,
+         'credentials': "CREDENTIALS"
          'fido': 0
         }
     )
+
+def checkIfUserExists():#(username, password) -> bool:
+    print("\n########## checkIfUserExists ##############\n")
+    username = input("    Username: ")
+    if userExists(username):
+        print("Exists")
+    else:
+        print("Dont Exists")
+
+def userExists(username) -> bool:
+    print("\n########## userExists ##############\n")
+    user_query = Query()
+    user = db.search(user_query.username == username)
+    #print(user)
+    if len(user) == 1:
+        return True
+    else:
+        return False
 
 def queryUserDB(username, password) -> bool:
     print("\n########## queryUserDB ##############\n")
@@ -91,7 +113,7 @@ def queryUserDB(username, password) -> bool:
     user_query = Query()
     
     user = db.search(user_query.username == username)
-#    print(user)
+    print(user)
 
     if userm.checkPassword2(password, user[0]['passwordSalt'], user[0]['password']):
         print("    Password was correct following User Data")
@@ -103,6 +125,7 @@ def queryUserDB(username, password) -> bool:
         print(f"        User Passwort: {user[0]['password']}")
         print(f"        User Passwort Salt: {user[0]['passwordSalt']}")
         print(f"        User sessionID: {user[0]['sessionID']}")
+        print(f"        User credentials: {user[0]['credentials']}")
         print(f"        User FidoActive: {user[0]['fido']}")
         return True
     else:
