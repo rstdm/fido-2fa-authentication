@@ -2,6 +2,8 @@ from fido2.server import Fido2Server
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity
 from flask import Blueprint, session, jsonify, request, abort
 
+import userManagament as userm
+
 import session as session_util
 
 rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
@@ -22,13 +24,25 @@ def register_begin():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
-    user = {"id": b"user_id", "name": "A. User"}
+    #if request.method == 'POST':
+        # register user
+        # validate input
+        #firstName = request.form['firstname']
+        #password = request.form['passWord']
+        #userName = request.form['username']
+        #print("UserData")
+
+    #user = {"id": b"user_id", "name": "A. User"}
 
     options, state = server.register_begin(
         PublicKeyCredentialUserEntity(
             id=b"user_id",
             name="a_user",
             display_name="A. User",
+
+            #id=bytes(user.userName),
+            #name=user.userName,
+            #display_name=firstName + " " + lastName,
         ),
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
@@ -54,9 +68,13 @@ def register_complete():
     auth_data = server.register_complete(session_util.getServerSession(session).state, response)
 
     credentials.append(auth_data.credential_data)
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print("REGISTERED CREDENTIAL:", auth_data.credential_data)
 
     session_util.login(session)
+
+    print("***********************************************************")
+    print(f"{credentials}")
 
     return jsonify({"status": "OK"})
 
@@ -94,4 +112,13 @@ def authenticate_complete():
 
     session_util.login(session)
 
+    return jsonify({"status": "OK"})
+
+
+@bp.route("/cred/print", methods=["GET"])
+def printCredentials():
+    print("--------------------------------------------------\n")
+    print("Credentials:")
+    print(credentials)
+    print("\n--------------------------------------------------")
     return jsonify({"status": "OK"})

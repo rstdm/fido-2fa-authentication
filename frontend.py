@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, session, request
 
 import session as session_util
 import userManagament as userm
+import dbtry as db
 
 bp = Blueprint('frontend', __name__)
 
@@ -36,13 +37,18 @@ def register():
         password = request.form['password']
 
         serverSession = session_util.getServerSession(session)
-        if serverSession is None:
-            return redirect('/register')
+
+
+
         newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
-        userm.registerUser(newUser, serverSession.id)
-        return redirect('/login')
 
 
+        if not db.userExists(userName):
+            db.insertIntoDB(newUser)
+            session_util.login(session)
+            return redirect('/register-fido')
+        else:
+            return redirect('/register') # show error msg  # todo: redirect to fido registration
 
     else:
         return render_template('register.html')
@@ -53,9 +59,6 @@ def register():
 def register_fido():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    if session_util.isSessionLoggedIn(session):
-        return redirect('/')
 
     return render_template('register_fido.html')
 
@@ -72,9 +75,26 @@ def login():
 
     if session_util.isSessionLoggedIn(session):
         # user is already logged in
-        return redirect("/index_logged_in.html")
+        return redirect("/")
     else:
-        # user is not logged in, check credentials
+        if request.method == 'POST':
+            if len (request.form) != 2:
+                return render_template('login.html', error="Invalid input")
+            userName = request.form['username']
+            password = request.form['password']
+            print(f"Username: {userName}, Password: {password}")
+            if db.queryUserDB(userName,password):
+                # login successful session is valid and logged in
+                session_util.login(session)
+
+                return redirect("/register-fido")
+            else:
+                return render_template("/login.html") # todo display error msg
+        else:
+            return render_template('login.html')
+
+        
+        """ # user is not logged in, check credentials
         if request.method == 'POST':
             # check credentials
             username = request.form['username']
@@ -95,7 +115,7 @@ def login():
                 return render_template("/index_logged_in.html")
             else:
                 # login failed
-                return render_template('login.html', is_logged_in=False, login_failed=True)
+                return render_template('login.html', is_logged_in=False, login_failed=True) """
     return render_template('login.html')
 
 

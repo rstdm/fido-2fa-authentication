@@ -8,7 +8,8 @@ from flask import session as flask_session
 
 SESSION_KEY = "ID"
 filename = "persistentsession"
-newSession = shelved_cache.PersistentCache( TTLCache, filename, 500, 60)
+#newSession = shelved_cache.PersistentCache( TTLCache, filename, 500, 600)
+newSession = TTLCache(500, 600)
 sessionIDLength = 64
 
 
@@ -38,6 +39,7 @@ def createSessionId():
     server_session = ServerSession(randString(sessionIDLength))
     newSession[server_session.id] = server_session
     return server_session.id
+
 def isSessionValid (userSession: flask_session):
     if SESSION_KEY in userSession:
         return userSession[SESSION_KEY] in newSession.keys()
@@ -56,7 +58,7 @@ def getServerSession (userSession: flask_session):
 def login(userSession: flask_session):
     serverSession = getServerSession(userSession)
     serverSession.logged_in = True
-    newSession[userSession[SESSION_KEY]] = serverSession
+    newSession[serverSession.id] = serverSession
 
 
 def logout(userSession: flask_session):
@@ -73,7 +75,7 @@ def setSessionState(userSession: flask_session, state):
     serverSession = getServerSession(userSession)
     if serverSession is not None:
         serverSession.state = state
-        newSession[userSession[SESSION_KEY]] = serverSession
+        newSession[serverSession.id] = serverSession
         return True
 
     return False
