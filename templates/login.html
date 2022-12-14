@@ -9,7 +9,7 @@
 
     <!--TODO use this data to create a session. redirect to login-fido if fido is enabled. Otherwiese redirect to "/".
     TODO If FIDO is enabled the user must not be marked as logged in until the fido authentication is completed.-->
-    <form action="/login-fido" method="get">
+    <form action="/login" method="post">
         <div class="form-floating">
             <input class="form-control input-group-no-border-radius-bottom"
                    id="usernameInput" name="username" maxlength="100" required placeholder="Nutzername">
