@@ -12,7 +12,7 @@ server = Fido2Server(rp)
 
 # Registered credentials are stored globally, in memory only. Single user
 # support, state is lost when the server terminates.
-credentials = []
+credentials = [] # todo this information must be unique for each user and has to be retrieved from the database
 
 
 
@@ -65,7 +65,7 @@ def register_complete():
 
     response = request.json
     print("RegistrationResponse:", response)
-    auth_data = server.register_complete(session_util.getServerSession(session).state, response)
+    auth_data = server.register_complete(session_util.getServerSession(session).state, response) # todo exception handling
 
     credentials.append(auth_data.credential_data)
     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -99,11 +99,11 @@ def authenticate_complete():
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
     if not credentials:
-        abort(404)
+        abort(404) # todo exception handling?
 
     response = request.json
     print("AuthenticationResponse:", response)
-    server.authenticate_complete(
+    server.authenticate_complete( # todo exception handling
         session_util.getServerSession(session).state,
         credentials,
         response,

@@ -30,8 +30,8 @@ def register():
         # register user
         # validate input
         if len (request.form) != 4:
-            return render_template('register.html', error="Invalid input")
-        firstName = request.form['firstname']
+            return render_template('register.html', error="Invalid input") # todo display error
+        firstName = request.form['firstname'] # todo validate input
         lastName = request.form['lastname']
         userName = request.form['username']
         password = request.form['password']
@@ -48,7 +48,7 @@ def register():
             session_util.login(session)
             return redirect('/register-fido')
         else:
-            return redirect('/register') # show error msg  # todo: redirect to fido registration
+            return redirect('/register') # todo user name already exists -> display error message
 
     else:
         return render_template('register.html')
@@ -89,11 +89,11 @@ def login():
 
                 return redirect("/register-fido")
             else:
-                return render_template("/login.html") # todo display error msg
+                return render_template("/login.html") # todo incorrect username / password -> display error message
         else:
             return render_template('login.html')
 
-        
+        # todo remove?
         """ # user is not logged in, check credentials
         if request.method == 'POST':
             # check credentials
