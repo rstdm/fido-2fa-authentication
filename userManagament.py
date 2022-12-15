@@ -80,7 +80,7 @@ def getUserBySessionID(sessionid):
         return None
     else:
         user = User(**users[0])
-        return user.sessionid
+        return user
 
 def  setNewSessionId(username):
     user_query = Query()
@@ -92,4 +92,10 @@ def  setNewSessionId(username):
     return user.sessionid
 
 
-
+def saveFidoState(user, fidoState):
+    user_query = Query()
+    user = db.search(user_query.username == user.username)
+    user = User(**user)
+    user.fidoinfo = fidoState
+    db.remove(user_query.username == user.username)
+    saveUser(user)

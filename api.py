@@ -2,6 +2,7 @@ from fido2.server import Fido2Server
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity
 from flask import Blueprint, session, jsonify, request, abort
 
+import userManagament
 import userManagament as userm
 
 import session as session_util
@@ -24,36 +25,25 @@ def register_begin():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
-
     # get user from session
     serverSession = session_util.getServerSession(session)
     user = userm.getUserBySessionID(serverSession.id)
-    print (user)
-
-
-
+    username = user.username
+    firstname = user.firstname
+    lastname = user.lastname
 
 
     options, state = server.register_begin(
         PublicKeyCredentialUserEntity(
-            id=b"user_id",
-            name="a_user",
-            display_name="A. User",
-
-            #id=bytes(user.userName),
-            #name=user.userName,
-            #display_name=firstName + " " + lastName,
+            id=username,
+            name=firstname,
+            display_name=firstname + " " + lastname,
         ),
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
     )
 
-    #session["state"] = state
-    session_util.setSessionState(session, state)
-    print("\n\n\n\n")
-    print(options)
-    print (f"userSession: {session}")
-    print("\n\n\n\n")
+    userManagament.saveFidoState(user, state)
 
     return jsonify(dict(options))
 
@@ -64,18 +54,9 @@ def register_complete():
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
     response = request.json
-    print("RegistrationResponse:", response)
     auth_data = server.register_complete(session_util.getServerSession(session).state, response)
-
     credentials.append(auth_data.credential_data)
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    print("REGISTERED CREDENTIAL:", auth_data.credential_data)
-
     session_util.login(session)
-
-    print("***********************************************************")
-    print(f"{credentials}")
-
     return jsonify({"status": "OK"})
 
 
@@ -102,16 +83,13 @@ def authenticate_complete():
         abort(404)
 
     response = request.json
-    print("AuthenticationResponse:", response)
+
     server.authenticate_complete(
         session_util.getServerSession(session).state,
         credentials,
         response,
     )
-    print("ASSERTION OK")
-
     session_util.login(session)
-
     return jsonify({"status": "OK"})
 
 
