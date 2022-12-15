@@ -76,7 +76,7 @@ def login():
                 return render_template('login.html', error="Invalid input")
             userName = request.form['username']
             password = request.form['password']
-            print(f"Username: {userName}, Password: {password}")
+            
             if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)

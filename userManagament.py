@@ -51,8 +51,10 @@ def userExists(user) -> bool:
 
 def checkUserPassword(username, password) -> bool:
     user_query = Query()
-    user = db.search(user_query.username == username)
-    user = user(**user)
+    users = db.search(user_query.username == username)
+    if len(users) != 1:
+        return False
+    user = User(**users[0])
     hashed_password = hashlib.sha512(password.encode('utf-8') + user.passwordsalt.encode('utf-8')).hexdigest()
     if user.password == hashed_password:
         return True
