@@ -114,6 +114,9 @@ def queryUserDB(username, password) -> bool:
     user = db.search(user_query.username == username)
     print(user)
 
+    if len(user) == 0:
+        return False
+
     if userm.checkPassword2(password, user[0]['passwordSalt'], user[0]['password']):
         print("    Password was correct following User Data")
         print("    Requested User")

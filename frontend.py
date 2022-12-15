@@ -53,7 +53,8 @@ def register():
             session_util.login(session)
             return redirect('/register-fido')
         else:
-            return redirect('/register') # todo user name already exists -> display error message
+            error_msg = f'Der gewählte Nutzername "{user_name}" ist bereits vergeben. Bitte wählen Sie einen anderen Nutzernamen.'
+            return render_template('register.html', error_msg=error_msg)
 
     else:
         return render_template('register.html')
@@ -83,8 +84,6 @@ def login():
         return redirect("/")
     else:
         if request.method == 'POST':
-            if len (request.form) != 2:
-                return render_template('login.html', error="Invalid input")
             userName = request.form['username']
             password = request.form['password']
             print(f"Username: {userName}, Password: {password}")
@@ -94,7 +93,8 @@ def login():
 
                 return redirect("/register-fido")
             else:
-                return render_template("/login.html") # todo incorrect username / password -> display error message
+                error_msg = "Ungültige Zugangsdaten."
+                return render_template("/login.html", error_msg=error_msg)
         else:
             return render_template('login.html')
 

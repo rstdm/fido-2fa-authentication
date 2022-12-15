@@ -9,6 +9,13 @@
         verschiedenen Accounts bei FIDO Demo zu unterscheiden.
     </div>
 
+    {% if error_msg %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_msg }}
+    </div>
+    {% endif %}
+
+
     <form action="/register" method="post">
         <div class="input-group">
             <div class="form-floating">
@@ -28,7 +35,8 @@
         <div class="form-floating">
             <input class="form-control input-group-no-border-radius-top input-group-no-border-radius-bottom"
                    id="usernameInput" name="username" maxlength="100" required placeholder="Nutzername"
-                    pattern="[a-zA-Z0-9]+" title="Nur Groß-, Kleinbuchstaben und Zahlen, keine Sonderzeichen oder Leerzeichen">
+                   pattern="[a-zA-Z0-9]+"
+                   title="Nur Groß-, Kleinbuchstaben und Zahlen, keine Sonderzeichen oder Leerzeichen">
             <label for="usernameInput">Nutzername</label>
         </div>
 
