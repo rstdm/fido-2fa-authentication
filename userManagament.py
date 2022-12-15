@@ -16,7 +16,7 @@ def randString(string_length=10):
 
 
 class User:
-    username  = None
+    username = None
     password = None
     passwordsalt = None
     fidoinfo = None
@@ -75,11 +75,12 @@ def createAndSaveUser(userName, password, fidoInfo, sessionID, firstName, lastNa
 
 def getUserBySessionID(sessionid):
     user_query = Query()
-    user = db.search(user_query.sessionid == sessionid)
-    if user is None:
+    users = db.search(user_query.sessionid == sessionid)
+    if len(users) != 1:
         return None
     else:
-        return User(**user).sessionid
+        user = User(**users[0])
+        return user.sessionid
 
 def  setNewSessionId(username):
     user_query = Query()

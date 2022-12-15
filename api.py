@@ -24,15 +24,15 @@ def register_begin():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
-    #if request.method == 'POST':
-        # register user
-        # validate input
-        #firstName = request.form['firstname']
-        #password = request.form['passWord']
-        #userName = request.form['username']
-        #print("UserData")
 
-    #user = {"id": b"user_id", "name": "A. User"}
+    # get user from session
+    serverSession = session_util.getServerSession(session)
+    user = userm.getUserBySessionID(serverSession.id)
+    print (user)
+
+
+
+
 
     options, state = server.register_begin(
         PublicKeyCredentialUserEntity(
@@ -117,8 +117,4 @@ def authenticate_complete():
 
 @bp.route("/cred/print", methods=["GET"])
 def printCredentials():
-    print("--------------------------------------------------\n")
-    print("Credentials:")
-    print(credentials)
-    print("\n--------------------------------------------------")
     return jsonify({"status": "OK"})
