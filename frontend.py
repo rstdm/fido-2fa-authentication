@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, session, request
+from flask import Blueprint, render_template, redirect, session, request, abort
 
 import session as session_util
 import userManagament as userm
@@ -29,21 +29,24 @@ def register():
     if request.method == 'POST':
         # register user
         # validate input
-        if len (request.form) != 4:
-            return render_template('register.html', error="Invalid input") # todo display error
-        firstName = request.form['firstname'] # todo validate input
-        lastName = request.form['lastname']
-        userName = request.form['username']
+        first_name = request.form['firstname']
+        last_name = request.form['lastname']
+        user_name = request.form['username']
         password = request.form['password']
 
+        input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
+        if max(input_lengths) > 100 or min(input_lengths) == 0:
+            print('WARNING: Got a request with invalid input which should have been validated by the client. This '
+                  'might indicate that an attacker is sending manipulated requests.')
+
+            # "nice" clients perform the validation on client side and don't send such requests
+            # we don't have to provide helpful error messages to attackers
+            return abort(400)
+
         serverSession = session_util.getServerSession(session)
+        newUser = userm.createUser(user_name, password, None, serverSession.id, first_name, last_name)
 
-
-
-        newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
-
-
-        if not db.userExists(userName):
+        if not db.userExists(user_name):
             db.insertIntoDB(newUser)
             session_util.login(session)
             return redirect('/register-fido')
