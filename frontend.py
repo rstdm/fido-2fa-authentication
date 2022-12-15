@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, redirect, session, request
 
 import session as session_util
 import userManagament as userm
-import dbtry as db
 
 bp = Blueprint('frontend', __name__)
 
@@ -38,13 +37,8 @@ def register():
 
         serverSession = session_util.getServerSession(session)
 
-
-
-        newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
-
-
-        if not db.userExists(userName):
-            db.insertIntoDB(newUser)
+        if not userm.userNameExists(userName):
+            userm.createAndSaveUser(userName, password, None, serverSession.id, firstName, lastName)
             session_util.login(session)
             return redirect('/register-fido')
         else:
@@ -83,7 +77,7 @@ def login():
             userName = request.form['username']
             password = request.form['password']
             print(f"Username: {userName}, Password: {password}")
-            if db.queryUserDB(userName,password):
+            if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)
 
@@ -93,29 +87,6 @@ def login():
         else:
             return render_template('login.html')
 
-        
-        """ # user is not logged in, check credentials
-        if request.method == 'POST':
-            # check credentials
-            username = request.form['username']
-            password = request.form['password']
-
-            user = userm.getUser(username)
-
-            if user is not None:
-                if userm.checkPassword(user, password):
-                    session_util.login(session)
-                    return render_template('/index_logged_in.html')
-                else:
-                    return render_template('login.html', error="Invalid credentials")
-
-            if request.form['username'] == 'admin' and request.form['password'] == 'admin':
-                # login successful
-                session_util.login(session)
-                return render_template("/index_logged_in.html")
-            else:
-                # login failed
-                return render_template('login.html', is_logged_in=False, login_failed=True) """
     return render_template('login.html')
 
 
