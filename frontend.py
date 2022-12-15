@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, render_template, redirect, session, request, abort
 
 import session as session_util
@@ -35,7 +37,7 @@ def register():
         password = request.form['password']
 
         input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
-        if max(input_lengths) > 100 or min(input_lengths) == 0:
+        if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-zA-Z0-9]+$', user_name) is None:
             print('WARNING: Got a request with invalid input which should have been validated by the client. This '
                   'might indicate that an attacker is sending manipulated requests.')
 
