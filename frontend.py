@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, redirect, session, request
+import re
+
+from flask import Blueprint, render_template, redirect, session, request, abort
 
 import session as session_util
 import userManagament as userm
-import dbtry as db
 
 bp = Blueprint('frontend', __name__)
 
@@ -29,26 +30,28 @@ def register():
     if request.method == 'POST':
         # register user
         # validate input
-        if len (request.form) != 4:
-            return render_template('register.html', error="Invalid input")
-        firstName = request.form['firstname']
-        lastName = request.form['lastname']
-        userName = request.form['username']
+        first_name = request.form['firstname']
+        last_name = request.form['lastname']
+        user_name = request.form['username']
         password = request.form['password']
+
+        input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
+        if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-zA-Z0-9]+$', user_name) is None:
+            print('WARNING: Got a request with invalid input which should have been validated by the client. This '
+                  'might indicate that an attacker is sending manipulated requests.')
+
+            # "nice" clients perform the validation on client side and don't send such requests
+            # we don't have to provide helpful error messages to attackers
+            return abort(400)
 
         serverSession = session_util.getServerSession(session)
 
-
-
-        newUser = userm.createUser(userName, password, None, serverSession.id, firstName, lastName)
-
-
-        if not db.userExists(userName):
-            db.insertIntoDB(newUser)
+        if not userm.userNameExists(user_name):
+            userm.createAndSaveUser(user_name, password, None, serverSession.id, first_name, last_name)
             session_util.login(session)
             return redirect('/register-fido')
         else:
-            return redirect('/register') # show error msg  # todo: redirect to fido registration
+            return redirect('/register') # todo user name already exists -> display error message
 
     else:
         return render_template('register.html')
@@ -82,40 +85,17 @@ def login():
                 return render_template('login.html', error="Invalid input")
             userName = request.form['username']
             password = request.form['password']
-            print(f"Username: {userName}, Password: {password}")
-            if db.queryUserDB(userName,password):
+            
+            if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)
 
                 return redirect("/register-fido")
             else:
-                return render_template("/login.html") # todo display error msg
+                return render_template("/login.html") # todo incorrect username / password -> display error message
         else:
             return render_template('login.html')
 
-        
-        """ # user is not logged in, check credentials
-        if request.method == 'POST':
-            # check credentials
-            username = request.form['username']
-            password = request.form['password']
-
-            user = userm.getUser(username)
-
-            if user is not None:
-                if userm.checkPassword(user, password):
-                    session_util.login(session)
-                    return render_template('/index_logged_in.html')
-                else:
-                    return render_template('login.html', error="Invalid credentials")
-
-            if request.form['username'] == 'admin' and request.form['password'] == 'admin':
-                # login successful
-                session_util.login(session)
-                return render_template("/index_logged_in.html")
-            else:
-                # login failed
-                return render_template('login.html', is_logged_in=False, login_failed=True) """
     return render_template('login.html')
 
 
