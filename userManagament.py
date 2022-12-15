@@ -2,6 +2,9 @@ import shelved_cache
 import uuid
 from cachetools import LRUCache
 import hashlib, uuid
+
+from fido2.webauthn import AttestedCredentialData
+
 import session as session_util
 from tinydb import TinyDB, Query
 
@@ -20,6 +23,7 @@ class User:
     password = None
     passwordsalt = None
     fidoinfo = None
+
     sessionid = None
     firstname = None
     lastname = None
@@ -73,6 +77,15 @@ def createAndSaveUser(userName, password, fidoInfo, sessionID, firstName, lastNa
     return user
 
 
+def getUserByUsername (username):
+    user_query = Query()
+    users = db.search(user_query.username == username)
+    if len(users) != 1:
+        return None
+    else:
+        user = User(**users[0])
+        return user
+
 def getUserBySessionID(sessionid):
     user_query = Query()
     users = db.search(user_query.sessionid == sessionid)
@@ -94,8 +107,31 @@ def  setNewSessionId(username):
 
 def saveFidoState(user, fidoState):
     user_query = Query()
-    user = db.search(user_query.username == user.username)
-    user = User(**user)
+    users = db.search(user_query.username == user.username)
+    if len(users) != 1:
+        return None
+    user = User(**users[0])
     user.fidoinfo = fidoState
     db.remove(user_query.username == user.username)
     saveUser(user)
+
+
+def refrechSession(user, sessionid):
+    user_query = Query()
+    user.sessionid = sessionid
+    db.remove(user_query.username == user.username)
+    saveUser(user)
+    return user
+
+def getParsedFidoState(user):
+    state = user.fidoinfo
+    cur_aaguid = state['aaguid']
+    new_credential_id = state['new_credential_id']
+    cur_public_key = state['cur_public_key']
+
+    newACD = AttestedCredentialData.create(
+    aaguid=bytes(cur_aaguid),
+    credential_id=new_credential_id,
+    public_key=cur_public_key)
+
+    return newACD

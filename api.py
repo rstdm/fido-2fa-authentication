@@ -37,7 +37,7 @@ def register_begin():
 
     options, state = server.register_begin(
         PublicKeyCredentialUserEntity(
-            id=username,
+            id=bytes(username, "utf-8"),
             name=firstname,
             display_name=firstname + " " + lastname,
         ),
@@ -57,9 +57,26 @@ def register_complete():
 
     response = request.json
     print("RegistrationResponse:", response)
-    auth_data = server.register_complete(session_util.getServerSession(session).state, response) # todo exception handling
 
-    credentials.append(auth_data.credential_data)
+    # -----------------------------------------
+    fidoState = userm.getUserBySessionID(session_util.getServerSession(session).id).fidoinfo
+    # -----------------------------------------
+
+
+    auth_data = server.register_complete(fidoState, response) # todo exception handling
+    #credentials.append(auth_data.credential_data)
+
+    #--------------------------------------------
+
+    cur_aaguid = auth_data.credential_data.aaguid
+    cur_credential_id = auth_data.credential_data.credential_id # todo save this in the database
+    cur_public_key = auth_data.credential_data.public_key   # todo save this in the database
+
+    state = {"aaguid": cur_aaguid, "credential_id": cur_credential_id, "public_key": cur_public_key}
+
+    userm.saveFidoState(userm.getUserBySessionID(session_util.getServerSession(session).id), state)
+
+
     session_util.login(session)
 
 
@@ -68,9 +85,6 @@ def register_complete():
 
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-    cur_aaguid = auth_data.credential_data.aaguid
-    cur_credential_id = auth_data.credential_data.credential_id
-    cur_public_key = auth_data.credential_data.public_key
 
     print(f"aaguid: {cur_aaguid}")
     print(f"credential_id: {cur_credential_id}")
@@ -109,7 +123,7 @@ def register_complete():
     #credJSON = jsonify(auth_data.credential_data)
     #credJSON = json.dumps(credentials)
     #print(credJSON)
-
+    # --------------------------------------------
 
     return jsonify({"status": "OK"})
 
@@ -119,11 +133,18 @@ def authenticate_begin():
     if not session_util.isSessionValid(session):
         session[session_util.SESSION_KEY] = session_util.createSessionId()
 
-    if not credentials:
+    getParsedFidoState = userm.getParsedFidoState(userm.getUserBySessionID(session_util.getServerSession(session).id).fidoinfo)
+
+    if getParsedFidoState is None:
         abort(404)
 
-    options, state = server.authenticate_begin(credentials)
-    session_util.setSessionState(session, state)
+    user = userm.getUserBySessionID(session_util.getServerSession(session).id)
+    fidoinfo = user.fidoinfo
+
+    options, state = server.authenticate_begin(fidoinfo)
+    userManagament.saveFidoState(user, state)
+
+    #session_util.setSessionState(session, state)
 
     return jsonify(dict(options))
 
@@ -138,9 +159,12 @@ def authenticate_complete():
 
     response = request.json
 
+    user = userm.getUserBySessionID(session_util.getServerSession(session).id)
+    fidoinfo = user.fidoinfo
+
     print("AuthenticationResponse:", response)
     server.authenticate_complete( # todo exception handling
-        session_util.getServerSession(session).state,
+        fidoinfo,
         credentials,
         response,
     )

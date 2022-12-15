@@ -89,6 +89,8 @@ def login():
             if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)
+                user = userm.getUserByUsername(userName)
+                userm.refrechSession(user, sessionId)
 
                 return redirect("/register-fido")
             else:
