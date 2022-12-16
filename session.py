@@ -4,14 +4,9 @@ import uuid
 from cachetools import TTLCache
 from flask import session as flask_session
 
-
-
 SESSION_KEY = "ID"
-filename = "persistentsession"
-#newSession = shelved_cache.PersistentCache( TTLCache, filename, 500, 600)
 newSession = TTLCache(500, 600)
 sessionIDLength = 64
-
 
 
 def randString(string_length=10):
@@ -70,6 +65,11 @@ def isSessionLoggedIn(userSession: flask_session):
     serverSession = getServerSession(userSession)
     return serverSession.logged_in
 
+def getSessionState(userSession: flask_session):
+    serverSession = getServerSession(userSession)
+    if serverSession is not None:
+        return serverSession.state
+    return None
 
 def setSessionState(userSession: flask_session, state):
     serverSession = getServerSession(userSession)

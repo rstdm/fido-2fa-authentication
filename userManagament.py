@@ -2,14 +2,14 @@ import shelved_cache
 import uuid
 from cachetools import LRUCache
 import hashlib, uuid
-
+import types
 from fido2.webauthn import AttestedCredentialData
 
 import session as session_util
 from tinydb import TinyDB, Query
 
 userContainerName = 'userContainer.json'
-db = TinyDB(userContainerName)
+db = {}
 
 def randString(string_length=10):
     random = str(uuid.uuid4())
@@ -40,25 +40,24 @@ class User:
 
 
 def saveUser(user):
-    db.insert(user.__dict__)
+    # insert dict db
+    db[user.username] = user
 
+    db
 def userNameExists(username) -> bool:
-    user_query = Query()
-    user = db.search(user_query.username == username)
-    if len(user) == 1:
+    if username in db.keys():
         return True
     else:
         return False
+
 
 def userExists(user) -> bool:
     return userNameExists(user.username)
 
 def checkUserPassword(username, password) -> bool:
-    user_query = Query()
-    users = db.search(user_query.username == username)
-    if len(users) != 1:
+    user = getUserByUsername(username)
+    if user is None:
         return False
-    user = User(**users[0])
     hashed_password = hashlib.sha512(password.encode('utf-8') + user.passwordsalt.encode('utf-8')).hexdigest()
     if user.password == hashed_password:
         return True
@@ -66,8 +65,7 @@ def checkUserPassword(username, password) -> bool:
         return False
 
 def deleteUserByName(username):
-    user_query = Query()
-    db.remove(user_query.username == username)
+    db[username] = None
 
 def createAndSaveUser(userName, password, fidoInfo, sessionID, firstName, lastName):
     salt = uuid.uuid4().hex
@@ -78,60 +76,31 @@ def createAndSaveUser(userName, password, fidoInfo, sessionID, firstName, lastNa
 
 
 def getUserByUsername (username):
-    user_query = Query()
-    users = db.search(user_query.username == username)
-    if len(users) != 1:
-        return None
-    else:
-        user = User(**users[0])
-        return user
+    for user in db.values():
+        userName = user.username
+        if user.username == username:
+            return user
+    return None
 
 def getUserBySessionID(sessionid):
-    user_query = Query()
-    users = db.search(user_query.sessionid == sessionid)
-    if len(users) != 1:
-        return None
-    else:
-        user = User(**users[0])
-        return user
+    user = None
+    for key in db:
+        if db[key].sessionid == sessionid:
+            user = db[key]
+            break
+    return user
 
 def  setNewSessionId(username):
-    user_query = Query()
-    user = db.search(user_query.username == username)
-    user = User(**user)
+    user = getUserByUsername(username)
     user.sessionid = session_util.createSessionId()
-    db.remove(user_query.username == username)
     saveUser(user)
     return user.sessionid
 
-
 def saveFidoState(user, fidoState):
-    user_query = Query()
-    users = db.search(user_query.username == user.username)
-    if len(users) != 1:
-        return None
-    user = User(**users[0])
     user.fidoinfo = fidoState
-    db.remove(user_query.username == user.username)
     saveUser(user)
-
 
 def refrechSession(user, sessionid):
-    user_query = Query()
     user.sessionid = sessionid
-    db.remove(user_query.username == user.username)
     saveUser(user)
     return user
-
-def getParsedFidoState(user):
-    state = user.fidoinfo
-    cur_aaguid = state['aaguid']
-    new_credential_id = state['new_credential_id']
-    cur_public_key = state['cur_public_key']
-
-    newACD = AttestedCredentialData.create(
-    aaguid=bytes(cur_aaguid),
-    credential_id=new_credential_id,
-    public_key=cur_public_key)
-
-    return newACD
