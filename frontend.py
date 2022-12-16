@@ -79,16 +79,28 @@ def login():
     if session_util.isSessionLoggedIn(session):
         # user is already logged in
         return redirect("/")
+
     else:
+
+        # check if fido-login is possible
+        user = userm.getUserBySessionID(sessionId)
+        if user is not None and user.fidoinfo is not None:
+            return redirect("/login-fido")
+
         if request.method == 'POST':
             if len (request.form) != 2:
                 return render_template('login.html', error="Invalid input")
             userName = request.form['username']
             password = request.form['password']
-            
+            if userName == "" or password == "":
+                print ("WARNING: Got a request with invalid input which should have been validated by the client. This ")
+                return render_template('login.html', error="Invalid input")
+
             if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)
+                user = userm.getUserByUsername(userName)
+                userm.refrechSession(user, sessionId)
 
                 return redirect("/register-fido")
             else:
