@@ -4,7 +4,6 @@ from flask import Blueprint, render_template, redirect, session, request, abort
 
 import session as session_util
 import userManagament as userm
-import dbtry as db
 
 bp = Blueprint('frontend', __name__)
 
@@ -46,10 +45,9 @@ def register():
             return abort(400)
 
         serverSession = session_util.getServerSession(session)
-        newUser = userm.createUser(user_name, password, None, serverSession.id, first_name, last_name)
 
-        if not db.userExists(user_name):
-            db.insertIntoDB(newUser)
+        if not userm.userNameExists(user_name):
+            userm.createAndSaveUser(user_name, password, None, serverSession.id, first_name, last_name)
             session_util.login(session)
             return redirect('/register-fido')
         else:
@@ -82,14 +80,26 @@ def login():
     if session_util.isSessionLoggedIn(session):
         # user is already logged in
         return redirect("/")
+
     else:
+
+        # check if fido-login is possible
+        user = userm.getUserBySessionID(sessionId)
+        if user is not None and user.fidoinfo is not None:
+            return redirect("/login-fido")
+
         if request.method == 'POST':
             userName = request.form['username']
             password = request.form['password']
-            print(f"Username: {userName}, Password: {password}")
-            if db.queryUserDB(userName,password):
+            if userName == "" or password == "":
+                print ("WARNING: Got a request with invalid input which should have been validated by the client. This ")
+                return render_template('login.html', error="Invalid input")
+
+            if userm.checkUserPassword(userName,password):
                 # login successful session is valid and logged in
                 session_util.login(session)
+                user = userm.getUserByUsername(userName)
+                userm.refrechSession(user, sessionId)
 
                 return redirect("/register-fido")
             else:
@@ -98,29 +108,6 @@ def login():
         else:
             return render_template('login.html')
 
-        # todo remove?
-        """ # user is not logged in, check credentials
-        if request.method == 'POST':
-            # check credentials
-            username = request.form['username']
-            password = request.form['password']
-
-            user = userm.getUser(username)
-
-            if user is not None:
-                if userm.checkPassword(user, password):
-                    session_util.login(session)
-                    return render_template('/index_logged_in.html')
-                else:
-                    return render_template('login.html', error="Invalid credentials")
-
-            if request.form['username'] == 'admin' and request.form['password'] == 'admin':
-                # login successful
-                session_util.login(session)
-                return render_template("/index_logged_in.html")
-            else:
-                # login failed
-                return render_template('login.html', is_logged_in=False, login_failed=True) """
     return render_template('login.html')
 
 
