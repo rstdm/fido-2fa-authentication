@@ -7,6 +7,12 @@
 {% block slim_layout_card_body %}
     <div class="mb-3">Bitte geben Sie ihre Login-Daten ein.</div>
 
+    {% if error_msg %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_msg }}
+    </div>
+    {% endif %}
+
     <form action="/login" method="post">
         <div class="form-floating">
             <input class="form-control input-group-no-border-radius-bottom"
