@@ -2,10 +2,6 @@ from fido2.server import Fido2Server
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity, AttestedCredentialData
 from flask import Blueprint, session, jsonify, request, abort
 
-import userManagament
-import userManagament as userm
-
-import session as session_util
 
 
 rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
@@ -16,15 +12,10 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 @bp.route("/register/begin", methods=["POST"])
 def register_begin():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    # get user from session
-    serverSession = session_util.getServerSession(session)
-    user = userm.getUserBySessionID(serverSession.id)
-    username = user.username
-    firstname = user.firstname
-    lastname = user.lastname
+    username = "username" # TODO
+    firstname = "firstname"
+    lastname = "lastname"
+    state = None
 
 
     options, state = server.register_begin(
@@ -33,73 +24,48 @@ def register_begin():
             name=firstname,
             display_name=firstname + " " + lastname,
         ),
-        user.fidoinfo,
+        state,
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
     )
 
-    session_util.setSessionState(session, state)
+    #session_util.setSessionState(session, state)
 
     return jsonify(dict(options))
 
 
 @bp.route("/register/complete", methods=["POST"])
 def register_complete():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
     response = request.json
-    serverSession = session_util.getServerSession(session)
-    user = userm.getUserBySessionID(serverSession.id)
-    fidostate = session_util.getSessionState(session)
+    user = None
+    fidostate = None # TODO
 
     auth_data = server.register_complete(fidostate, response) # todo exception handling
-    userm.saveFidoState(user, auth_data.credential_data)
+    #userm.saveFidoState(user, auth_data.credential_data)
 
-    session_util.login(session)
+    #session_util.login(session)
 
     return jsonify({"status": "OK"})
 
 
 @bp.route("/authenticate/begin", methods=["POST"])
 def authenticate_begin():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    user = userm.getUserBySessionID(session_util.getServerSession(session).id)
-
-    if user.fidoinfo is None:
-        abort(404)
+    user = None # TODO
 
     options, state = server.authenticate_begin([user.fidoinfo], user_verification="discouraged")
-    session_util.setSessionState(session, state)
 
     return jsonify(dict(options))
 
 
 @bp.route("/authenticate/complete", methods=["POST"])
 def authenticate_complete():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    user = userm.getUserBySessionID(session_util.getServerSession(session).id)
-    fidoinfo = user.fidoinfo
-    state = session_util.getSessionState(session)
-
-    if not fidoinfo:
-        abort(404) # todo exception handling?
-
+    user = None
     response = request.json
 
-    server.authenticate_complete( # todo exception handling
+    #TODO
+    """server.authenticate_complete( # todo exception handling 
         state,
         [fidoinfo],
         response,
-    )
-    session_util.login(session)
-    return jsonify({"status": "OK"})
-
-
-@bp.route("/cred/print", methods=["GET"])
-def printCredentials():
+    )"""
     return jsonify({"status": "OK"})

@@ -2,3 +2,4 @@ fido2
 flask
 cachetools
 tinydb
+flask_login

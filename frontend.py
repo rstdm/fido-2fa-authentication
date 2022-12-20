@@ -2,18 +2,14 @@ import re
 
 from flask import Blueprint, render_template, redirect, session, request, abort
 
-import session as session_util
-import userManagament as userm
 
 bp = Blueprint('frontend', __name__)
 
 
 @bp.route('/')
 def index():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    if session_util.isSessionLoggedIn(session):
+    is_logged_in = True # TODO
+    if is_logged_in:
         return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)
@@ -21,111 +17,80 @@ def index():
 
 @bp.route('/register', methods=['POST', 'GET'])
 def register():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    if session_util.isSessionLoggedIn(session):
-        return redirect('/')
+    #if session_util.isSessionLoggedIn(session): # TODO
+    #    return redirect('/')
 
     if request.method == 'POST':
-        # register user
-        # validate input
-        first_name = request.form['firstname']
-        last_name = request.form['lastname']
-        user_name = request.form['username']
-        password = request.form['password']
-
-        input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
-        if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-zA-Z0-9]+$', user_name) is None:
-            print('WARNING: Got a request with invalid input which should have been validated by the client. This '
-                  'might indicate that an attacker is sending manipulated requests.')
-
-            # "nice" clients perform the validation on client side and don't send such requests
-            # we don't have to provide helpful error messages to attackers
-            return abort(400)
-
-        serverSession = session_util.getServerSession(session)
-
-        if not userm.userNameExists(user_name):
-            userm.createAndSaveUser(user_name, password, None, serverSession.id, first_name, last_name)
-            session_util.login(session)
-            return redirect('/register-fido')
-        else:
-            error_msg = f'Der gewählte Nutzername "{user_name}" ist bereits vergeben. Bitte wählen Sie einen anderen Nutzernamen.'
-            return render_template('register.html', error_msg=error_msg)
-
+        return post_register()
     else:
         return render_template('register.html')
 
 
+def post_register():
+    # register user
+    # validate input
+    first_name = request.form['firstname']
+    last_name = request.form['lastname']
+    user_name = request.form['username']
+    password = request.form['password']
+
+    input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
+    if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-zA-Z0-9]+$', user_name) is None:
+        print('WARNING: Got a request with invalid input which should have been validated by the client. This '
+              'might indicate that an attacker is sending manipulated requests.')
+
+        # "nice" clients perform the validation on client side and don't send such requests
+        # we don't have to provide helpful error messages to attackers
+        return abort(400)
+
+    #if not userm.userNameExists(user_name):
+    #    userm.createAndSaveUser(user_name, password, None, serverSession.id, first_name, last_name)
+        return redirect('/register-fido')
+    else:
+        error_msg = f'Der gewählte Nutzername "{user_name}" ist bereits vergeben. Bitte wählen Sie einen anderen Nutzernamen.'
+        return render_template('register.html', error_msg=error_msg)
+
 
 @bp.route('/register-fido', methods=['POST', 'GET'])
 def register_fido():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
     return render_template('register_fido.html')
 
 
 @bp.route('/login', methods = ['GET','POST'])
 def login():
-    sessionId = None
-    if not session_util.isSessionValid(session):
-        # is the session valid? create a new session if not
-        sessionId = session_util.createSessionId()
-        session[session_util.SESSION_KEY] = sessionId
+    #if session_util.isSessionLoggedIn(session):
+    #    # user is already logged in
+    #    return redirect("/")
+
+    if request.method == 'POST':
+        return post_login()
     else:
-        sessionId = session[session_util.SESSION_KEY]
+        return render_template('login.html')
 
-    if session_util.isSessionLoggedIn(session):
-        # user is already logged in
-        return redirect("/")
 
+def post_login():
+    user_name = request.form['username']
+    password = request.form['password']
+    if user_name == "" or password == "":
+        print("WARNING: Got a request with invalid input which should have been validated by the client. This ")
+        return render_template('login.html', error="Invalid input")
+
+    #if userm.checkUserPassword(user_name, password):
+        # login successful session is valid and logged in
+     #   user = userm.getUserByUsername(user_name)
+
+    #    return redirect("/register-fido")
     else:
-
-        # check if fido-login is possible
-        user = userm.getUserBySessionID(sessionId)
-        if user is not None and user.fidoinfo is not None:
-            return redirect("/login-fido")
-
-        if request.method == 'POST':
-            userName = request.form['username']
-            password = request.form['password']
-            if userName == "" or password == "":
-                print ("WARNING: Got a request with invalid input which should have been validated by the client. This ")
-                return render_template('login.html', error="Invalid input")
-
-            if userm.checkUserPassword(userName,password):
-                # login successful session is valid and logged in
-                session_util.login(session)
-                user = userm.getUserByUsername(userName)
-                userm.refrechSession(user, sessionId)
-
-                return redirect("/register-fido")
-            else:
-                error_msg = "Ungültige Zugangsdaten."
-                return render_template("/login.html", error_msg=error_msg)
-        else:
-            return render_template('login.html')
-
-    return render_template('login.html')
+        error_msg = "Ungültige Zugangsdaten."
+        return render_template("/login.html", error_msg=error_msg)
 
 
 @bp.route('/login-fido')
 def login_fido():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    if session_util.isSessionLoggedIn(session):
-        return redirect("/")
     return render_template('login_fido.html')
 
 
 @bp.route('/logout', methods=["POST"])
 def logout():
-    if not session_util.isSessionValid(session):
-        session[session_util.SESSION_KEY] = session_util.createSessionId()
-
-    if session_util.isSessionValid(session):
-        session_util.logout(session)
+    # TODO logout
     return redirect("/")
