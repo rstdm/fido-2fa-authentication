@@ -78,14 +78,13 @@ def post_login():
         print("WARNING: Got a request with invalid input which should have been validated by the client. This ")
         return render_template('login.html', error="Invalid input")
 
-    # if userm.checkUserPassword(user_name, password):
-    # login successful session is valid and logged in
-    #   user = userm.getUserByUsername(user_name)
-
-    #    return redirect("/register-fido")
-    else:
+    user = db.authenticate_user(user_name, password)
+    if user is None:
         error_msg = "Ungültige Zugangsdaten."
         return render_template("/login.html", error_msg=error_msg)
+    else:
+        flask_login.login_user(user)
+        return redirect('/register-fido')
 
 
 @bp.route('/login-fido')

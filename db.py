@@ -72,6 +72,21 @@ def load_user(username: str = '', user_id: int = -1) -> User | None:
     return user
 
 
+def authenticate_user(username: str, password: str) -> User | None:
+    user = db.get(Query().username == username)
+    if user is None:
+        return None
+
+    persisted_salt = user['password_salt']
+    persisted_hash = user['hashed_password']
+    provided_hash = hash_password(password, persisted_salt)
+
+    if persisted_hash != provided_hash:
+        return None
+
+    return db_entry_to_user(user)
+
+
 def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:
     if user_entry is None:
         return None
