@@ -1,9 +1,11 @@
 from flask import Flask
+from flask_login import LoginManager, UserMixin
 
 import os
 import fido2.features
 
 import api
+import db
 import frontend
 
 
@@ -15,6 +17,11 @@ app.secret_key = os.urandom(32)  # Used for session.
 
 app.register_blueprint(api.bp)
 app.register_blueprint(frontend.bp)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "frontend.login"
+app.config.USE_SESSION_FOR_NEXT = True # TODO doesn't work
 
 @app.after_request
 def apply_caching(response):
@@ -42,6 +49,11 @@ def apply_caching(response):
     # TODO flask sets the server header: Server: Werkzeug/2.2.2 Python/3.10.6 -> remove this header
 
     return response
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.load_user(user_id=user_id)
 
 
 def main():

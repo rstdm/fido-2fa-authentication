@@ -1,6 +1,8 @@
 import re
 
 from flask import Blueprint, render_template, redirect, session, request, abort
+import flask_login
+from flask_login import login_required
 
 import db
 
@@ -9,8 +11,7 @@ bp = Blueprint('frontend', __name__)
 
 @bp.route('/')
 def index():
-    is_logged_in = True  # TODO
-    if is_logged_in:
+    if flask_login.current_user.is_authenticated:
         return render_template('index_logged_in.html', is_logged_in=True)
     else:
         return render_template('index.html', is_logged_in=False)
@@ -18,8 +19,8 @@ def index():
 
 @bp.route('/register', methods=['POST', 'GET'])
 def register():
-    # if session_util.isSessionLoggedIn(session): # TODO
-    #    return redirect('/')
+    if flask_login.current_user.is_authenticated:
+        return redirect('/')
 
     if request.method == 'POST':
         return post_register()
@@ -28,8 +29,6 @@ def register():
 
 
 def post_register():
-    # register user
-    # validate input
     first_name = request.form['firstname']
     last_name = request.form['lastname']
     user_name = request.form['username']
@@ -51,23 +50,20 @@ def post_register():
         error_msg = f'Der gewählte Nutzername "{user_name}" ist bereits vergeben. Bitte wählen Sie einen anderen Nutzernamen.'
         return render_template('register.html', error_msg=error_msg)
 
-    # todo login
-    # if not userm.userNameExists(user_name):
-    #    userm.createAndSaveUser(user_name, password, None, serverSession.id, first_name, last_name)
+    flask_login.login_user(created_user)
     return redirect('/register-fido')
-    # else:
 
 
 @bp.route('/register-fido', methods=['POST', 'GET'])
+@login_required
 def register_fido():
     return render_template('register_fido.html')
 
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # if session_util.isSessionLoggedIn(session): # TODO
-    #    # user is already logged in
-    #    return redirect("/")
+    if flask_login.current_user.is_authenticated:
+        return redirect("/")
 
     if request.method == 'POST':
         return post_login()
@@ -94,10 +90,15 @@ def post_login():
 
 @bp.route('/login-fido')
 def login_fido():
+    if flask_login.current_user.is_authenticated:
+        return redirect('/')
     return render_template('login_fido.html')
 
 
 @bp.route('/logout', methods=["POST"])
 def logout():
-    # TODO logout
+    # we don't have to check weather the user is logged in or not
+    # if the user thinks he is logged in but he is no longer logged in (e.g. because his session expired) this route
+    # will be called. We want to redirect all users to the landing page
+    flask_login.logout_user()
     return redirect("/")

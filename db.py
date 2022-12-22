@@ -2,6 +2,7 @@ import dataclasses
 import hashlib
 import uuid
 
+import flask_login
 import tinydb.table
 from tinydb import TinyDB, Query
 from dataclasses import dataclass
@@ -14,11 +15,14 @@ class UsernameAlreadyExistsException(Exception):
 
 
 @dataclass
-class User:
+class User(flask_login.UserMixin):
     user_id: int = None
     username: str = None
     firstname: str = None
     lastname: str = None
+
+    def get_id(self): # this function is required by flask_login
+        return self.user_id
 
 
 @dataclass
