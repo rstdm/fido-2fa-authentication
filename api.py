@@ -1,50 +1,54 @@
+import os
+import uuid
+
+import fido2.webauthn
+import flask_login
 from fido2.server import Fido2Server
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity, AttestedCredentialData
 from flask import Blueprint, session, jsonify, request, abort
-
-
+from flask_login import login_required
 
 rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
-server = Fido2Server(rp)
+fido_server = Fido2Server(rp)
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
 @bp.route("/register/begin", methods=["POST"])
+@login_required
 def register_begin():
-    username = "username" # TODO
-    firstname = "firstname"
-    lastname = "lastname"
-    state = None
+    # TODO check that fido is not enabled
 
-
-    options, state = server.register_begin(
+    options, state = fido_server.register_begin(
         PublicKeyCredentialUserEntity(
-            id=bytes(username, "utf-8"),
-            name=firstname,
-            display_name=firstname + " " + lastname,
+            id=uuid.uuid4().bytes,
+            name=flask_login.current_user.username,
+            display_name=f'{flask_login.current_user.firstname} {flask_login.current_user.lastname}',
         ),
-        state,
-        user_verification="discouraged",
-        authenticator_attachment="cross-platform",
+        user_verification=fido2.webauthn.UserVerificationRequirement.DISCOURAGED,
     )
 
-    #session_util.setSessionState(session, state)
+    session['fido-state'] = state # TODO don't user the session for this!
 
     return jsonify(dict(options))
 
 
 @bp.route("/register/complete", methods=["POST"])
+@login_required
 def register_complete():
+    fido_state = session.get('fido-state', None) # TODO don't use the session for this!
+    # TODO: validate that this challenge has been created recently!
+    if fido_state is None:
+        return abort(400, 'no fido-state')
+
     response = request.json
-    user = None
-    fidostate = None # TODO
+    auth_data = None
+    try:
+        auth_data = fido_server.register_complete(fido_state, response)
+    except:
+        return abort(400, 'invalid payload')
 
-    auth_data = server.register_complete(fidostate, response) # todo exception handling
-    #userm.saveFidoState(user, auth_data.credential_data)
-
-    #session_util.login(session)
-
+    # TODO persist
     return jsonify({"status": "OK"})
 
 
@@ -52,7 +56,7 @@ def register_complete():
 def authenticate_begin():
     user = None # TODO
 
-    options, state = server.authenticate_begin([user.fidoinfo], user_verification="discouraged")
+    options, state = fido_server.authenticate_begin([user.fidoinfo], user_verification="discouraged")
 
     return jsonify(dict(options))
 
