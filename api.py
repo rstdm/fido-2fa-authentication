@@ -21,7 +21,8 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 @bp.route("/register/begin", methods=["POST"])
 @login_required
 def register_begin():
-    # TODO check that fido is not enabled
+    if flask_login.current_user.fido_info != "":
+        return abort(400, "fido has already been activated")
 
     options, state = fido_server.register_begin(
         PublicKeyCredentialUserEntity(
@@ -40,6 +41,9 @@ def register_begin():
 @bp.route("/register/complete", methods=["POST"])
 @login_required
 def register_complete():
+    if flask_login.current_user.fido_info != "":
+        return abort(400, "fido has already been activated")
+
     fido_state = session.get('fido-state', None)  # TODO don't use the session for this!
     # TODO: validate that this challenge has been created recently!
     if fido_state is None:
