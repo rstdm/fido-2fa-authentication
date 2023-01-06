@@ -21,7 +21,12 @@ app.register_blueprint(frontend.bp)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "frontend.login"
-app.config.USE_SESSION_FOR_NEXT = True # TODO doesn't work
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='strict',
+    USE_SESSION_FOR_NEXT=True
+)
 
 @app.after_request
 def apply_caching(response):
