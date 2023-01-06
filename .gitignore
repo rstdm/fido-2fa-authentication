@@ -1,6 +1,4 @@
 .idea
 __pycache__
-persistentsession.db
-userContainer.db
-userContainer.json
+userdb.json
 

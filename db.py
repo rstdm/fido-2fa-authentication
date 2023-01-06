@@ -7,7 +7,7 @@ import tinydb.table
 from tinydb import TinyDB, Query
 from dataclasses import dataclass
 
-db = TinyDB('userContainer.json')
+db = TinyDB('userdb.json', indent=2)
 
 
 class UsernameAlreadyExistsException(Exception):
