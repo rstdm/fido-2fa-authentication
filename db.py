@@ -86,18 +86,16 @@ def set_fido_info(user_id: int, fido_info: str):
 
 
 def authenticate_user(username: str, password: str) -> User | None:
-    user = db.get(Query().username == username)
+    user = load_user(username=username)
     if user is None:
         return None
 
-    persisted_salt = user['password_salt']
-    persisted_hash = user['hashed_password']
-    provided_hash = hash_password(password, persisted_salt)
+    provided_hash = hash_password(password, user.password_salt)
 
-    if persisted_hash != provided_hash:
+    if user.hashed_password != provided_hash:
         return None
 
-    return db_entry_to_user(user)
+    return user
 
 
 def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:

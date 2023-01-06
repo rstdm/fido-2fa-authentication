@@ -36,7 +36,7 @@ def post_register():
     password = request.form['password']
 
     input_lengths = [len(first_name), len(last_name), len(user_name), len(password)]
-    if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-zA-Z0-9]+$', user_name) is None:
+    if max(input_lengths) > 100 or min(input_lengths) == 0 or re.match(r'^[a-z0-9]+$', user_name) is None:
         print('WARNING: Got a request with invalid input which should have been validated by the client. This '
               'might indicate that an attacker is sending manipulated requests.')
 
@@ -76,7 +76,8 @@ def post_login():
     user_name = request.form['username']
     password = request.form['password']
     if user_name == "" or password == "":
-        print("WARNING: Got a request with invalid input which should have been validated by the client. This ")
+        print("WARNING: Got a request with invalid input which should have been validated by the client. This "
+              'might indicate that an attacker is sending manipulated requests.')
         return render_template('login.html', error="Invalid input")
 
     user = db.authenticate_user(user_name, password)
@@ -96,10 +97,10 @@ def post_login():
 def login_fido():
     if flask_login.current_user.is_authenticated:
         return redirect("/")
-    
+
     user_id = fidosession.get_user_id()
     if user_id is None:
-        return redirect('/')
+        return redirect('/login')
 
     return render_template('login_fido.html')
 

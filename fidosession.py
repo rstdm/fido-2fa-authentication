@@ -13,7 +13,6 @@ def start_fido_session(user_id: int):
         session_id = secrets.token_hex(32)
 
     cache[session_id] = user_id
-
     session[FIDO_SESSION_KEY] = session_id
 
 
