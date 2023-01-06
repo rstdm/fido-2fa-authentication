@@ -21,15 +21,12 @@ class User(flask_login.UserMixin):
     firstname: str = None
     lastname: str = None
 
-    def get_id(self): # this function is required by flask_login
-        return self.user_id
-
-
-@dataclass
-class FullUser(User):
     hashed_password: str = None
     password_salt: str = None
     fido_info: str = None
+
+    def get_id(self): # this function is required by flask_login
+        return self.user_id
 
 
 def create_user(username: str, firstname: str, lastname: str, password: str) -> User:
@@ -41,7 +38,7 @@ def create_user(username: str, firstname: str, lastname: str, password: str) -> 
     hashed_password = hash_password(password, password_salt)
 
     # we can specify 0 as user_id because we don't store the user_id by ourselves. it's managed by the database
-    user = FullUser(0, username, firstname, lastname, hashed_password, password_salt, fido_info='')
+    user = User(0, username, firstname, lastname, hashed_password, password_salt, fido_info='')
     user = dataclasses.asdict(user)
     del user['user_id']  # the database manages the userid for us
 
@@ -90,10 +87,6 @@ def authenticate_user(username: str, password: str) -> User | None:
 def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:
     if user_entry is None:
         return None
-
-    del user_entry['hashed_password']
-    del user_entry['password_salt']
-    del user_entry['fido_info']
 
     user = User(**user_entry)
     user.user_id = user_entry.doc_id
