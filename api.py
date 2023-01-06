@@ -7,6 +7,7 @@ from fido2.server import Fido2Server
 from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity, AttestedCredentialData
 from flask import Blueprint, session, jsonify, request, abort
 from flask_login import login_required
+from cachetools import TTLCache
 
 import db
 import fidosession
@@ -14,6 +15,7 @@ from db import User
 
 rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
 fido_server = Fido2Server(rp)
+active_challenges = TTLCache(1000, 60)  # fido challenges expire after 60 seconds
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -33,7 +35,7 @@ def register_begin():
         user_verification=fido2.webauthn.UserVerificationRequirement.DISCOURAGED,
     )
 
-    session['fido-state'] = state  # TODO don't user the session for this!
+    active_challenges[flask_login.current_user.user_id] = state
 
     return jsonify(dict(options))
 
@@ -44,8 +46,9 @@ def register_complete():
     if flask_login.current_user.fido_info != "":
         return abort(400, "fido has already been activated")
 
-    fido_state = session.get('fido-state', None)  # TODO don't use the session for this!
-    # TODO: validate that this challenge has been created recently!
+    # deleting the state from the list of active operations ensures that only one attempt to
+    # beat the challenge is possible
+    fido_state = active_challenges.pop(flask_login.current_user.user_id)
     if fido_state is None:
         return abort(400, 'no fido-state')
 
@@ -76,7 +79,7 @@ def authenticate_begin():
         user_verification=fido2.webauthn.UserVerificationRequirement.DISCOURAGED
     )
 
-    session['fido-state'] = state  # TODO don't user the session for this!
+    active_challenges[user.user_id] = state
 
     return jsonify(dict(options))
 
@@ -87,8 +90,9 @@ def authenticate_complete():
     if user is None:
         return abort(401, "Unauthorized")
 
-    fido_state = session.get('fido-state', None)  # TODO don't use the session for this!
-    # TODO: validate that this challenge has been created recently!
+    # deleting the state from the list of active operations ensures that only one attempt to
+    # beat the challenge is possible
+    fido_state = active_challenges.pop(user.user_id, None)
     if fido_state is None:
         return abort(400, 'no fido-state')
 
