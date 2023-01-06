@@ -34,7 +34,7 @@ def create_user(username: str, firstname: str, lastname: str, password: str) -> 
     if existing_user is not None:
         raise UsernameAlreadyExistsException
 
-    password_salt = uuid.uuid4().hex
+    password_salt = secrets.token_hex(32)
     hashed_password = hash_password(password, password_salt)
 
     # we can specify 0 as user_id because we don't store the user_id by ourselves. it's managed by the database
