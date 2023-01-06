@@ -39,10 +39,9 @@ def create_user(username: str, firstname: str, lastname: str, password: str) -> 
 
     # we can specify 0 as user_id because we don't store the user_id by ourselves. it's managed by the database
     user = User(0, username, firstname, lastname, hashed_password, password_salt, fido_info='')
-    user = dataclasses.asdict(user)
-    del user['user_id']  # the database manages the userid for us
 
-    db.insert(user)
+    user_fields = user_to_db_entry(user)
+    db.insert(user_fields)
 
     return load_user(username=username)
 
@@ -75,6 +74,17 @@ def load_user(username: str = '', user_id: int = -1) -> User | None:
     return user
 
 
+def set_fido_info(user_id: int, fido_info: str):
+    user = db.get(doc_id=user_id)
+    if user is None:
+        raise ValueError('user does not exist')
+    user = db_entry_to_user(user)
+    user.fido_info = fido_info
+
+    user_dict = user_to_db_entry(user)
+    db.update(user_dict, doc_ids=[user_id])
+
+
 def authenticate_user(username: str, password: str) -> User | None:
     user = db.get(Query().username == username)
     if user is None:
@@ -94,4 +104,10 @@ def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:
     user = User(**user_entry)
     user.user_id = user_entry.doc_id
 
+    return user
+
+
+def user_to_db_entry(user) -> dict:
+    user = dataclasses.asdict(user)
+    del user['user_id']  # the database manages the userid for us
     return user

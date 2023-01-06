@@ -8,6 +8,8 @@ from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserE
 from flask import Blueprint, session, jsonify, request, abort
 from flask_login import login_required
 
+import db
+
 rp = PublicKeyCredentialRpEntity(name="Demo server", id="localhost")
 fido_server = Fido2Server(rp)
 
@@ -48,7 +50,9 @@ def register_complete():
     except:
         return abort(400, 'invalid payload')
 
-    # TODO persist
+    user_id = flask_login.current_user.user_id
+    db.set_fido_info(user_id, auth_data.hex())
+
     return jsonify({"status": "OK"})
 
 
