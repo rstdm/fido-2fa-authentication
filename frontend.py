@@ -1,6 +1,6 @@
 import re
 
-from flask import Blueprint, render_template, redirect, request, abort
+from flask import Blueprint, render_template, redirect, request, abort, flash
 import flask_login
 from flask_login import login_required
 
@@ -49,7 +49,8 @@ def post_register():
     except db.UsernameAlreadyExistsException:
         error_msg = f'Der gewählte Nutzername "{user_name}" ist bereits vergeben. ' \
                     f'Bitte wählen Sie einen anderen Nutzernamen.'
-        return render_template('register.html', error_msg=error_msg)
+        flash(error_msg)
+        return redirect('/register')
 
     flask_login.login_user(created_user)
     return redirect('/register-fido')
@@ -83,7 +84,8 @@ def post_login():
     user = db.authenticate_user(user_name, password)
     if user is None:
         error_msg = "Ungültige Zugangsdaten."
-        return render_template("login.html", error_msg=error_msg)
+        flash(error_msg)
+        return redirect('/login')
 
     if user.fido_info == "":
         flask_login.login_user(user)

@@ -9,11 +9,15 @@
         verschiedenen Accounts bei FIDO Demo zu unterscheiden.
     </div>
 
-    {% if error_msg %}
-    <div class="alert alert-danger" role="alert">
-        {{ error_msg }}
-    </div>
-    {% endif %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
 
     <form action="/register" method="post">
