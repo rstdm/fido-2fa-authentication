@@ -52,8 +52,6 @@ def apply_caching(response):
                                                   "base-uri 'self';"
     # Strict-Transport-Security can be enabled as soon as this website has a valid certificate
 
-    # TODO flask sets the server header: Server: Werkzeug/2.2.2 Python/3.10.6 -> remove this header
-
     return response
 
 
