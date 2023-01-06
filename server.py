@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager
 
 import os
 import fido2.features
@@ -27,6 +27,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='strict',
     USE_SESSION_FOR_NEXT=True
 )
+
 
 @app.after_request
 def apply_caching(response):

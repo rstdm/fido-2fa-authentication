@@ -1,11 +1,10 @@
-import os
 import uuid
 
 import fido2.webauthn
 import flask_login
 from fido2.server import Fido2Server
-from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity, AttestedCredentialData
-from flask import Blueprint, session, jsonify, request, abort
+from fido2.webauthn import PublicKeyCredentialRpEntity, PublicKeyCredentialUserEntity
+from flask import Blueprint, jsonify, request, abort
 from flask_login import login_required
 from cachetools import TTLCache
 
@@ -53,7 +52,6 @@ def register_complete():
         return abort(400, 'no fido-state')
 
     response = request.json
-    auth_data = None
     try:
         auth_data = fido_server.register_complete(fido_state, response)
     except:

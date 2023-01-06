@@ -1,5 +1,3 @@
-from typing import Any
-
 from cachetools import TTLCache
 from flask import session
 import secrets

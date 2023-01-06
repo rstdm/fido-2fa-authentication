@@ -25,7 +25,7 @@ class User(flask_login.UserMixin):
     password_salt: str = None
     fido_info: str = None
 
-    def get_id(self): # this function is required by flask_login
+    def get_id(self):  # this function is required by flask_login
         return self.user_id
 
 
