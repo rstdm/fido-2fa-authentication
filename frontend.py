@@ -82,14 +82,18 @@ def post_login():
     if user is None:
         error_msg = "Ungültige Zugangsdaten."
         return render_template("/login.html", error_msg=error_msg)
-    else:
+
+    if user.fido_info == "":
         flask_login.login_user(user)
         return redirect('/register-fido')
+    else:
+        # todo start mini-session
+        return redirect('/login-fido')
 
 
 @bp.route('/login-fido')
 def login_fido():
-    if flask_login.current_user.is_authenticated:
+    if not flask_login.current_user.is_authenticated: # todo verify mini-session
         return redirect('/')
     return render_template('login_fido.html')
 

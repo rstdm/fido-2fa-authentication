@@ -58,6 +58,7 @@ def register_complete():
 
 @bp.route("/authenticate/begin", methods=["POST"])
 def authenticate_begin():
+    # todo verify mini-session
     user = None # TODO
 
     options, state = fido_server.authenticate_begin([user.fidoinfo], user_verification="discouraged")
@@ -67,6 +68,7 @@ def authenticate_begin():
 
 @bp.route("/authenticate/complete", methods=["POST"])
 def authenticate_complete():
+    # todo verify mini-session
     user = None
     response = request.json
 
