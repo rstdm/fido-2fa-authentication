@@ -57,13 +57,19 @@ def load_user(username: str = '', user_id: int = -1) -> User | None:
 
     if user_id >= 0:
         user = db.get(doc_id=user_id)
-        user = db_entry_to_user(user)
+        if user is None:
+            return None
 
+        user = db_entry_to_user(user)
         if username != '' and username != user.username:
             return None
+
         return user
 
     user = db.get(Query().username == username)
+    if user is None:
+        return None
+
     user = db_entry_to_user(user)
 
     return user
@@ -85,9 +91,6 @@ def authenticate_user(username: str, password: str) -> User | None:
 
 
 def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:
-    if user_entry is None:
-        return None
-
     user = User(**user_entry)
     user.user_id = user_entry.doc_id
 
