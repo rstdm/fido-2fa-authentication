@@ -1,6 +1,6 @@
 import dataclasses
 import hashlib
-import uuid
+import secrets
 
 import flask_login
 import tinydb.table

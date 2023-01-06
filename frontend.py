@@ -5,6 +5,7 @@ import flask_login
 from flask_login import login_required
 
 import db
+import fidosession
 
 bp = Blueprint('frontend', __name__)
 
@@ -87,14 +88,19 @@ def post_login():
         flask_login.login_user(user)
         return redirect('/register-fido')
     else:
-        # todo start mini-session
+        fidosession.start_fido_session(user.user_id)
         return redirect('/login-fido')
 
 
 @bp.route('/login-fido')
 def login_fido():
-    if not flask_login.current_user.is_authenticated: # todo verify mini-session
+    if flask_login.current_user.is_authenticated:
+        return redirect("/")
+    
+    user_id = fidosession.get_user_id()
+    if user_id is None:
         return redirect('/')
+
     return render_template('login_fido.html')
 
 
