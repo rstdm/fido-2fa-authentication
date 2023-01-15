@@ -27,7 +27,7 @@ def register_begin():
 
     options, state = fido_server.register_begin(
         PublicKeyCredentialUserEntity(
-            id=uuid.uuid4().bytes,
+            id=bytes (str(flask_login.current_user.user_id), 'utf-8'),
             name=flask_login.current_user.username,
             display_name=f'{flask_login.current_user.firstname} {flask_login.current_user.lastname}',
         ),
