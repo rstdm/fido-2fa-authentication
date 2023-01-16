@@ -109,7 +109,7 @@ def authenticate_complete():
     return jsonify({"status": "OK"})
 
 
-def load_user_from_fido_session() -> User | None:
+def load_user_from_fido_session() -> User:
     user_id = fidosession.get_user_id()
     if user_id is None:
         return None

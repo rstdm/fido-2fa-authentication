@@ -50,7 +50,7 @@ def hash_password(password: str, salt: str):
     return hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
 
 
-def load_user(username: str = '', user_id: int = -1) -> User | None:
+def load_user(username: str = '', user_id: int = -1) -> User:
     if username == '' and user_id < 0:
         raise ValueError('username or user_id must be specified to retrieve a user')
 
@@ -85,7 +85,7 @@ def set_fido_info(user_id: int, fido_info: str):
     db.update(user_dict, doc_ids=[user_id])
 
 
-def authenticate_user(username: str, password: str) -> User | None:
+def authenticate_user(username: str, password: str) -> User:
     user = load_user(username=username)
     if user is None:
         return None
@@ -98,7 +98,7 @@ def authenticate_user(username: str, password: str) -> User | None:
     return user
 
 
-def db_entry_to_user(user_entry: tinydb.table.Document) -> User | None:
+def db_entry_to_user(user_entry: tinydb.table.Document) -> User:
     user = User(**user_entry)
     user.user_id = user_entry.doc_id
 

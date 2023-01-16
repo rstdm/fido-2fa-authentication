@@ -16,7 +16,7 @@ def start_fido_session(user_id: int):
     session[FIDO_SESSION_KEY] = session_id
 
 
-def get_user_id() -> int | None:
+def get_user_id() -> int:
     session_id = session.get(FIDO_SESSION_KEY, None)
     if session_id is None:
         return None
