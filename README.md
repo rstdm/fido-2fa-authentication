@@ -5,6 +5,12 @@ It was the goal, to demonstrate the usage of the FIDO2 protocol in a web applica
 You can register and authenticate with a FIDO2 device (from Yubikey). Your registert device will be stored in a persistent database.
 Beware that the FIDO2 server is not production ready and should not be used in a production environment.
 
+## List of Features
+- Register a FIDO2 device
+- Authenticate with a FIDO2 device
+- Register a User
+- Login with a User
+- 
 
 ## Run local
 To run this project locally, is is nessessary to install all requirements and run the following command:
