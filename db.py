@@ -16,6 +16,7 @@ class UsernameAlreadyExistsException(Exception):
 
 @dataclass
 class User(flask_login.UserMixin):
+    ''' A representation of a user. It is used by flask_login to store the user in the session and FIDO-information '''
     user_id: int = None
     username: str = None
     firstname: str = None
