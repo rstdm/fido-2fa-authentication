@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 
+import pyfiglet
 import os
 import fido2.features
 
@@ -61,7 +62,9 @@ def load_user(user_id):
 
 
 def main():
-    print(__doc__)
+    helpinfo = 'localhost'
+    ascii_banner = pyfiglet.figlet_format(helpinfo)
+    print(ascii_banner)
     app.run(host="0.0.0.0", port=5000, ssl_context="adhoc", debug=True)
 
 
