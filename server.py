@@ -1,3 +1,7 @@
+"""
+This module configures flask and launches the server. The application logic is implemented in the other modules.
+"""
+
 from flask import Flask
 from flask_login import LoginManager
 
@@ -9,30 +13,39 @@ import api
 import db
 import frontend
 
+# configure the fido library
+fido2.features.webauthn_json_mapping.enabled = True  # this simplifies the conversion from and to json
 
-fido2.features.webauthn_json_mapping.enabled = True
-
-
+# configure flask
 app = Flask(__name__, static_url_path="")
 app.secret_key = os.urandom(32)  # Used for session.
 
+# add http routes / endpoints
 app.register_blueprint(api.bp)
 app.register_blueprint(frontend.bp)
 
+# configure flask-login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "frontend.login"
+
+# update the flask configuration
 app.config.update(
+    # tell flask to use secure cookies
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='strict',
+
+    # tell flask-login to store its state in the session (and not in the url)
     USE_SESSION_FOR_NEXT=True
 )
 
 
 @app.after_request
 def apply_caching(response):
-    # add security headers, see https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html
+    """This function adds security headers to every response that is sent to the client. The security headers are
+    based on the recommendations of owasp (see https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html)"""
+
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -58,6 +71,7 @@ def apply_caching(response):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """This function is used by flask-login to load the user. flask-login stores only the user_id in the session."""
     return db.load_user(user_id=user_id)
 
 
