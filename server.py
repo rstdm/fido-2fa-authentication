@@ -5,7 +5,6 @@ This module configures flask and launches the server. The application logic is i
 from flask import Flask, request, redirect
 from flask_login import LoginManager
 
-import pyfiglet
 import os
 import fido2.features
 from urllib.parse import urlparse
