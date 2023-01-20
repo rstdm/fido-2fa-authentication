@@ -2,12 +2,13 @@
 This module configures flask and launches the server. The application logic is implemented in the other modules.
 """
 
-from flask import Flask
+from flask import Flask, request, redirect
 from flask_login import LoginManager
 
 import pyfiglet
 import os
 import fido2.features
+from urllib.parse import urlparse
 
 import api
 import db
@@ -39,6 +40,26 @@ app.config.update(
     # tell flask-login to store its state in the session (and not in the url)
     USE_SESSION_FOR_NEXT=True
 )
+
+
+@app.before_request
+def validate_domain():
+    """For security reasons fido can only be used on encrypted pages (HTTPS) that use a valid certificate. Since this
+    application uses a self-signed certificate it would normally not be possible to demonstrate FIDO. Fortunately most
+    browsers accept self-signed certificates if the host is 'localhost'."""
+
+    expected_host = 'localhost'
+    url = urlparse(request.url)
+
+    # redirect if the host is not localhost or if the client is not using HTTPS
+    if url.hostname != expected_host or url.scheme != "https":
+        # unfortunately the hostname can't be modified directly; we have to modify the netloc instead
+        netloc = f'{expected_host}:{url.port}'
+
+        # the documentation recommends to use this function:
+        # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
+        url = url._replace(netloc=netloc, scheme="https")
+        return redirect(url.geturl())
 
 
 @app.after_request
@@ -76,9 +97,6 @@ def load_user(user_id):
 
 
 def main():
-    helpinfo = 'localhost'
-    ascii_banner = pyfiglet.figlet_format(helpinfo)
-    print(ascii_banner)
     app.run(host="0.0.0.0", port=5000, ssl_context="adhoc", debug=True)
 
 
