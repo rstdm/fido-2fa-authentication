@@ -13,7 +13,6 @@ RUN mkdir -p certs \
 ADD requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
-# todo dockerignore (internal oder src ordner?), volume
 COPY server.py docker_launch.sh ./
 COPY app/ app/
 COPY templates/ templates/

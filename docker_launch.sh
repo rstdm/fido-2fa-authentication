@@ -8,5 +8,3 @@ openssl req -newkey rsa:4096  -x509  -sha512  -days 365 -nodes -out certs/certif
 
 echo "starting server"
 gunicorn server:app --access-logfile=- --bind 0.0.0.0:8000 --certfile=certs/certificate.pem --keyfile=certs/privatekey.pem
-
-# TODO change user
