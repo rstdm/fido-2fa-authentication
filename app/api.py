@@ -10,9 +10,9 @@ from flask import Blueprint, jsonify, request, abort
 from flask_login import login_required
 from cachetools import TTLCache
 
-import db
-import fidosession
-from db import User
+import app.db as db
+from app.db import User
+import app.fidosession as fidosession
 
 # This information is sent to the client (browser + fido-token). The browser verifies that the id matches the domain of
 # the webpage.

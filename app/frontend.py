@@ -4,8 +4,8 @@ from flask import Blueprint, render_template, redirect, request, abort, flash
 import flask_login
 from flask_login import login_required
 
-import db
-import fidosession
+import app.db as db
+import app.fidosession as fidosession
 
 bp = Blueprint('frontend', __name__)
 

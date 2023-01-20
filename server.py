@@ -10,9 +10,9 @@ import os
 import fido2.features
 from urllib.parse import urlparse
 
-import api
-import db
-import frontend
+import app.api as api
+import app.db as db
+import app.frontend as frontend
 
 # configure the fido library
 fido2.features.webauthn_json_mapping.enabled = True  # this simplifies the conversion from and to json
