@@ -46,4 +46,4 @@ The previous example stores the database in the container. Execute this snippet 
 
     mkdir database
     chmod -R a+rwx database
-    docker run -ti -p 8000:8000 --mount type=bind,source="$(pwd)/database2",target=/app/database fido:1.0
+    docker run -ti -p 8000:8000 --mount type=bind,source="$(pwd)/database",target=/app/database fido:1.0
