@@ -1,4 +1,5 @@
 # direct dependencies
+bcrypt==4.0.1
 cachetools==5.2.1
 fido2==1.1.0
 Flask==2.2.2

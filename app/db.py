@@ -3,8 +3,7 @@ the data is stored in a json file. This is an ideal fit for a prototype because 
 inspected at any time (by opening the json file in a text editor)."""
 
 import dataclasses
-import hashlib
-import secrets
+import bcrypt
 
 import flask_login
 import tinydb.table
@@ -28,7 +27,6 @@ class User(flask_login.UserMixin):
     lastname: str = None
 
     hashed_password: str = None
-    password_salt: str = None
     fido_info: str = None
 
     def get_id(self):  # this function is required by flask_login
@@ -45,12 +43,11 @@ def create_user(username: str, firstname: str, lastname: str, password: str) -> 
         raise UsernameAlreadyExistsException
 
     # hash the password
-    password_salt = secrets.token_hex(32)
-    hashed_password = hash_password(password, password_salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).hex()
 
     # Create a user object.
     # we can specify 0 as user_id because we don't store the user_id by ourselves. it's managed by the database
-    user = User(0, username, firstname, lastname, hashed_password, password_salt, fido_info='')
+    user = User(0, username, firstname, lastname, hashed_password, fido_info='')
 
     # persist the user
     user_fields = user_to_db_entry(user)
@@ -59,10 +56,6 @@ def create_user(username: str, firstname: str, lastname: str, password: str) -> 
     # load the user and return the result. tinydb created a user_id when the user was persisted. The loaded user object
     # contains the new user_id
     return load_user(username=username)
-
-
-def hash_password(password: str, salt: str):
-    return hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
 
 
 def load_user(username: str = '', user_id: int = -1) -> User:
@@ -120,11 +113,9 @@ def authenticate_user(username: str, password: str) -> User:
     if user is None:
         return None
 
-    # hash provided password
-    provided_hash = hash_password(password, user.password_salt)
 
     # compare the provided password with the real password
-    if user.hashed_password != provided_hash:
+    if not bcrypt.checkpw(password.encode('utf-8'), bytes.fromhex(user.hashed_password)):
         return None
 
     return user
