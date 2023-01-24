@@ -1,14 +1,18 @@
+# direct dependencies
+bcrypt==4.0.1
 cachetools==5.2.1
-cffi==1.15.1
-click==8.1.3
-cryptography==39.0.0
 fido2==1.1.0
 Flask==2.2.2
 Flask-Login==0.6.2
+tinydb==4.7.1
+gunicorn==20.1.0
+
+# indirect dependencies
+cffi==1.15.1
+click==8.1.3
+cryptography==39.0.0
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
 pycparser==2.21
-pyfiglet==0.8.post1
-tinydb==4.7.1
 Werkzeug==2.2.2

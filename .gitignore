@@ -1,4 +1,4 @@
 .idea
 __pycache__
-userdb.json
+database/userdb.json
 *.DS_Store
