@@ -1,48 +1,53 @@
-# fido-deliverable
-This project was created during the course 'Sicherheit und Webanwendungen' at the University of Applied Sciences in Lübeck.
+# FIDO 2FA Authentication Demo
 
-This project demonstrates the usage of the FIDO2 protocol to secure a web application.
-Users can create a new account and authenticate using their chosen username and password. Users can also enable FIDO as an optional second factor.
+![startpage](docs/startpage.png)
 
-All data is persisted in a lightweight database. Only salted password hashes are saved.
+![login](docs/login.png)
 
-## List of Features
+Dieses Projekt demonstriert eine sichere Zwei-Faktor-Authentifizierungen mit FIDO für Websites. Es wurde in Python mit dem Flask-Framework erstellt.
 
-- Create an account using username and password
-- Login with username and password
-- Register a FIDO2 device
-- Authenticate with username and password (first factor) and FIDO (second factor)
+Nutzer sind in der Lage, neue Accounts anzulegen und sich bei bestehenden Accounts mit Nutzernamen und Passwort anzumelden. Wenn die Nutzer einen FIDO-Sicherheitsschlüssel eingerichtet haben (optional), wird dieser bei der Anmeldung ebenfalls abgefragt und der Account so vor Identitätsdiebstahl geschützt.
 
-This application was designed with strong security considerations in mind. It's not vulnerable to XSS,
-CORS, CSRF, Clickjacking and SQL-Injections.
+Alle Daten werden in einer leichtgewichtigen Datenbank persistiert. Passwörter werden niemals im Klartext, sondern nur gehashed und gesalted gespeichert.
 
-## Hosting the application
+Bei der Entwicklung wurde großer Wert auf Sicherheit gelegt. Die Anwendung ist vor XSS, CORS, CSRF, Clickjacking und SQL-Injections geschützt.
 
-For security reasons browsers only allow the usage of FIDO on webpages that are transmitted using HTTPS. The browser ensures that the certificate is valid (e.g. not expired, webpage domain is identical to certificate domain, etc.) and prevents the usage of FIDO otherwise.
+## Features
 
-To host the application on your own you therefore have to use a valid certificate. The application currently generates a self-signed certificate at runtime.
+- Einen Account mit Nutzernamen und Passwort anlegen
+- Mit Nutzernamen und Passwort anmelden
+- FIDO-Sicherheitsschlüssel zu einem Account hinzufügen (während der Erstellung des Accounts oder nachträglich)
+- Mit Nutzernamen und Passwort (erster Faktor) und FIDO (zweiter Faktor) anmelden
 
-Due to the self-signed certificate the usage of FIDO isn't possible if the application is used via a domain or an IP-address. However, most browsers treat `localhost` specially and allow the usage of FIDO if the webpage is retrieved from `localhost`.
+## Hosting der Anwendung
 
-## Run locally
-To run this project locally, it is necessary to install all requirements. Execute these commands to do so:
+Aus Sicherheitsgründen lassen Browser die Verwendung von FIDO nur auf Webseiten zu, die mit HTTPS übertragen werden. Der Browser stellt sicher, dass das Zertifikat gültig ist (z. B. nicht abgelaufen, die Domain der Webseite ist identisch mit der Domain des Zertifikats, usw.) und verhindert andernfalls die Verwendung von FIDO.
+
+Um die Anwendung selbst zu hosten, müssen Sie daher ein gültiges Zertifikat verwenden. Die Anwendung generiert derzeit ein selbstsigniertes Zertifikat zur Laufzeit.
+
+Aufgrund des selbstsignierten Zertifikats ist die Nutzung von FIDO nicht möglich, wenn die Anwendung über eine Domain oder eine IP-Adresse genutzt wird. Die meisten Browser behandeln jedoch `localhost` speziell und erlauben die Verwendung von FIDO, wenn die Webseite von `localhost` abgerufen wird.
+
+## Lokales Ausführen
+
+Um dieses Projekt lokal auszuführen, müssen Sie alle Abhängigkeiten installieren. Führen Sie dazu diese Befehle aus:
 
     pip3 install -r requirements.txt
     python3 server.py
 
-The application is then available on **https://localhost:5000**. Note that the browser blocks FIDO for any other host (e.g. 127.0.0.1) due to the security restrictions that were mentioned in the section before.
+Die Anwendung ist dann unter **https://localhost:5000** erreichbar. Beachten Sie, dass der Browser FIDO für jeden anderen Host (z. B. 127.0.0.1) aufgrund der im vorherigen Abschnitt erwähnten Sicherheitseinschränkungen blockiert.
 
-The server stores its database in the `database` folder.
+Der Server speichert seine Datenbank im Ordner `database`.
 
-## Run with docker
-It is possible to run this project in a docker container. To do so, you need to install docker. Then you can execute the following commands:
+## Mit Docker ausführen
+
+Es ist möglich, dieses Projekt in einem Docker-Container auszuführen. Dazu müssen Sie docker installieren. Dann können Sie die folgenden Befehle ausführen:
 
     docker build -t fido:1.0 .
     docker run -ti -p 8000:8000 fido:1.0
 
-The application is available on **https://localhost:8000**. Note that the usage of HTTP**S** is mandatory; the server doesn't respond to HTTP requests.
+Die Anwendung ist unter **https://localhost:8000** erreichbar. Beachten Sie, dass die Verwendung von HTTP**S** obligatorisch ist; der Server antwortet nicht auf HTTP-Anfragen.
 
-The previous example stores the database in the container. Execute this snippet on a UNIX-like system (macOS, Linux), if you want to create the database on your disk:
+Das vorherige Beispiel speichert die Datenbank im Container. Führen Sie die nachfolgenden Befehle auf einem UNIX-ähnlichen System (macOS oder Linux) aus, wenn Sie die Datenbank auf Ihrer Festplatte speichern möchten:
 
     mkdir database
     chmod -R a+rwx database
